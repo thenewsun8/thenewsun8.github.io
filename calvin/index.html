@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="칼빈 준비">
+<meta name="theme-color" content="#EAF6FF">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>*,::before,::after{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>서준이 칼빈 준비</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Baloo+2:wght@600;800&display=swap">
+<style>
+/* 레이아웃: 한 화면 놀이판 — 위 막대(뒤로·별), 가운데 선생님 말풍선, 아래 큰 터치 버튼. 아이 손가락 기준으로 크게 */
+:root{--bg:#EAF6FF;--paper:#FFFFFF;--ink:#1F2A44;--muted:#5C6B8A;--sun:#FFB52E;--sky:#3D8BFF;--good:#22A866;--bad:#F25F5C;--line:#CFE3F7;
+  --red:#F2545B;--blue:#3D8BFF;--yellow:#FFC93C;--green:#2BB673;
+  --f-kid:"Jua","Apple SD Gothic Neo",sans-serif;--f-en:"Baloo 2","Jua",system-ui,sans-serif;color-scheme:light}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-kid);font-size:18px;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:14px;padding-block:14px 24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:4px solid var(--sky);outline-offset:3px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.back{background:var(--paper);border-radius:999px;padding:8px 16px;font-size:18px;box-shadow:0 3px 0 var(--line)}
+.stars{background:var(--paper);border-radius:999px;padding:8px 16px;font-size:20px;box-shadow:0 3px 0 var(--line);font-variant-numeric:tabular-nums}
+h1{font-size:34px;margin:6px 0 0;text-wrap:balance;line-height:1.15}
+.sub{color:var(--muted);margin:0;font-size:17px;line-height:1.45}
+.doors{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.door{background:var(--paper);border-radius:22px;padding:16px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 5px 0 var(--line);min-height:150px;justify-content:center;text-align:center}
+.door .ic{font-size:52px;line-height:1}
+.door b{font-size:21px}
+.door small{color:var(--muted);font-size:14px;line-height:1.3}
+.door .got{font-size:14px;color:var(--sun)}
+.door:active,.big:active,.tile:active,.opt:active{transform:translateY(3px);box-shadow:0 2px 0 var(--line)}
+.note{background:#FFF7E3;border-radius:16px;padding:12px 14px;font-size:15px;line-height:1.5;color:#6B5320}
+.teacher{display:flex;gap:10px;align-items:flex-start}
+.face{font-size:54px;line-height:1;flex:none}
+.bubble{background:var(--paper);border-radius:20px;padding:14px 16px;box-shadow:0 4px 0 var(--line);flex:1;min-width:0;position:relative}
+.bubble .en{font-family:var(--f-en);font-weight:800;font-size:26px;line-height:1.2}
+.bubble .ko{color:var(--muted);font-size:14px;margin-top:4px}
+.again{margin-top:8px;background:var(--sky);color:#fff;border-radius:999px;padding:6px 14px;font-size:16px}
+.stage{display:flex;flex-direction:column;gap:14px;flex:1}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tile{background:var(--paper);border-radius:18px;aspect-ratio:1;max-width:100%;display:grid;place-items:center;box-shadow:0 4px 0 var(--line);font-size:44px;line-height:1;padding:6px}
+.tile svg{width:100%;height:100%}
+.tile.ok{outline:5px solid var(--good)}.tile.no{outline:5px solid var(--bad)}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opt{background:var(--paper);border-radius:18px;padding:16px 6px;font-family:var(--f-en);font-weight:800;font-size:34px;box-shadow:0 4px 0 var(--line)}
+.opt.wide{font-size:20px;font-family:var(--f-kid);font-weight:400;padding:14px 8px}
+.opt.ok{background:var(--good);color:#fff}.opt.no{background:var(--bad);color:#fff}
+.count{background:var(--paper);border-radius:20px;padding:12px;min-height:120px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-content:center;font-size:38px;box-shadow:0 4px 0 var(--line)}
+.groups{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.groups .count{font-size:30px;min-height:150px}
+.groups button.count.ok{outline:5px solid var(--good)}.groups button.count.no{outline:5px solid var(--bad)}
+.picks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pick{background:var(--paper);border-radius:16px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 4px 0 var(--line);font-size:34px;line-height:1.1}
+.pick span{font-size:13px;color:var(--muted)}
+.pick.on{outline:4px solid var(--sun)}
+.big{background:var(--sun);color:var(--ink);border-radius:20px;padding:16px;font-size:22px;box-shadow:0 5px 0 #D99412;width:100%}
+.big.blue{background:var(--sky);color:#fff;box-shadow:0 5px 0 #2563C7}
+.big.green{background:var(--good);color:#fff;box-shadow:0 5px 0 #17804C}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.say{background:var(--paper);border-radius:20px;padding:14px 16px;box-shadow:0 4px 0 var(--line)}
+.say .en{font-family:var(--f-en);font-weight:800;font-size:24px;line-height:1.25;color:var(--sky)}
+.scene{font-size:84px;text-align:center;line-height:1}
+.prog{display:flex;gap:6px;justify-content:center}
+.prog i{width:12px;height:12px;border-radius:50%;background:var(--line)}.prog i.on{background:var(--sun)}
+.cheer{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;font-size:120px;opacity:0;transition:opacity .2s}
+.cheer.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.cheer{transition:none}}
+</style>
+
+<div class="wrap" id="app"></div>
+<div class="cheer" id="cheer" aria-hidden="true">⭐</div>
+
+<script>
+/* ---------- 소리 ---------- */
+const synth=window.speechSynthesis||null;let voice=null;
+function pickVoice(){if(!synth)return;const vs=synth.getVoices();voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/samantha|female|google/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}
+if(synth){pickVoice();synth.onvoiceschanged=pickVoice}
+function say(t,rate){if(!synth)return;try{synth.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";if(voice)u.voice=voice;u.rate=rate||0.82;u.pitch=1.08;synth.speak(u)}catch(_){}}
+
+/* ---------- 별 ---------- */
+let stars={};try{stars=JSON.parse(localStorage.getItem("calvin-stars")||"{}")||{}}catch(_){stars={}}
+function total(){return Object.values(stars).reduce((a,b)=>a+b,0)}
+function addStar(k){stars[k]=(stars[k]||0)+1;try{localStorage.setItem("calvin-stars",JSON.stringify(stars))}catch(_){}
+  const c=document.getElementById("cheer");c.classList.add("show");setTimeout(()=>c.classList.remove("show"),650);const s=document.getElementById("starN");if(s)s.textContent=total()}
+const rnd=n=>Math.floor(Math.random()*n),shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a},pick=a=>a[rnd(a.length)];
+const app=document.getElementById("app");
+function el(html){const d=document.createElement("div");d.innerHTML=html.trim();return d.firstElementChild}
+function topBar(title){return `<div class="top"><button class="back" id="back">← 처음으로</button><div class="stars">⭐ <span id="starN">${total()}</span></div></div><h1>${title}</h1>`}
+function bindBack(){document.getElementById("back").onclick=home}
+function teacher(en,ko){return `<div class="teacher"><div class="face" aria-hidden="true">👩‍🏫</div><div class="bubble"><div class="en" id="q">${en}</div>${ko?`<div class="ko">${ko}</div>`:""}<button class="again" id="again">🔊 다시 듣기</button></div></div>`}
+
+/* ---------- 처음 화면 ---------- */
+const STAGES=[
+ {k:"me",ic:"🙋",name:"나를 소개해요",d:"면접에서 묻는 말"},
+ {k:"do",ic:"👂",name:"듣고 해요",d:"선생님 지시 알아듣기"},
+ {k:"num",ic:"🔢",name:"영어로 수학",d:"수 세기·많다·모양"},
+ {k:"class",ic:"🏫",name:"교실에서 말해요",d:"화장실·물·도와주세요"}];
+function home(){if(synth)synth.cancel();
+ app.innerHTML=`<div class="top"><span></span><div class="stars">⭐ <span id="starN">${total()}</span></div></div>
+ <h1>서준이 칼빈 준비</h1>
+ <p class="sub">칼빈은 입학 때 영어·수학 평가와 면접을 보고, 들어가면 따로 영어반(ESL) 없이 바로 영어 수업이에요. 그 네 가지만 연습해요.</p>
+ <div class="doors">${STAGES.map(s=>`<button class="door" data-k="${s.k}"><span class="ic">${s.ic}</span><b>${s.name}</b><small>${s.d}</small><span class="got">⭐ ${stars[s.k]||0}</span></button>`).join("")}</div>
+ <div class="note">👨 아빠·엄마 도움말 — 소리가 나오니 무음 스위치를 꺼 주세요. '따라 말해요'는 서준이가 소리 내어 말하면 어른이 ⭐ 버튼을 눌러 주세요.</div>`;
+ app.querySelectorAll(".door").forEach(b=>b.onclick=()=>({me:stMe,do:stDo,num:stNum,class:stClass})[b.dataset.k]())}
+
+/* ---------- 1. 나를 소개해요 ---------- */
+const ME=[
+ {q:"What's your name?",ko:"이름이 뭐니?",fixed:"My name is Seojun."},
+ {q:"How old are you?",ko:"몇 살이니?",picks:[["5️⃣","five","다섯"],["6️⃣","six","여섯"],["7️⃣","seven","일곱"]],a:v=>`I'm ${v} years old.`},
+ {q:"What's your favorite color?",ko:"좋아하는 색은?",picks:[["🔴","red","빨강"],["🔵","blue","파랑"],["🟡","yellow","노랑"],["🟢","green","초록"]],a:v=>`My favorite color is ${v}.`},
+ {q:"What do you like to do?",ko:"뭐 하는 걸 좋아하니?",picks:[["⚽","play soccer","축구"],["🎨","draw","그리기"],["🧱","play with blocks","블록"],["🏊","swim","수영"]],a:v=>`I like to ${v}.`},
+ {q:"What's your favorite food?",ko:"좋아하는 음식은?",picks:[["🍕","pizza","피자"],["🍜","noodles","국수"],["🍓","strawberries","딸기"],["🍚","rice","밥"]],a:v=>`I like ${v}.`},
+ {q:"Who is in your family?",ko:"가족은 누구니?",fixed:"My mom, my dad, and me."},
+ {q:"Can you count to ten?",ko:"열까지 셀 수 있니?",fixed:"One, two, three, four, five, six, seven, eight, nine, ten!"},
+ {q:"How are you today?",ko:"오늘 기분 어때?",picks:[["😊","happy","좋아요"],["😴","sleepy","졸려요"],["🤩","excited","신나요"]],a:v=>`I'm ${v}!`}];
+function stMe(i=0){const it=ME[i];let ans=it.fixed||null;
+ app.innerHTML=topBar("나를 소개해요")+`<div class="prog">${ME.map((_,j)=>`<i class="${j<=i?"on":""}"></i>`).join("")}</div>`+teacher(it.q,it.ko)+
+ (it.picks?`<div class="picks" style="grid-template-columns:repeat(${it.picks.length},1fr)">${it.picks.map((p,j)=>`<button class="pick" data-j="${j}">${p[0]}<span>${p[2]}</span></button>`).join("")}</div>`:"")+
+ `<div class="say" id="sayBox"${ans?"":" hidden"}><div class="ko" style="color:var(--muted);font-size:14px">서준이가 이렇게 대답해요</div><div class="en" id="ans">${ans||""}</div></div>
+ <div class="row"><button class="big blue" id="hear">🔊 대답 듣기</button><button class="big green" id="did">⭐ 따라 말했어요</button></div>
+ <button class="big" id="next">${i<ME.length-1?"다음 질문 →":"처음부터 다시"}</button>`;
+ bindBack();const sayQ=()=>say(it.q);document.getElementById("again").onclick=sayQ;setTimeout(sayQ,250);
+ app.querySelectorAll(".pick").forEach(b=>b.onclick=()=>{app.querySelectorAll(".pick").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+   ans=it.a(it.picks[+b.dataset.j][1]);document.getElementById("ans").textContent=ans;document.getElementById("sayBox").hidden=false;say(ans)});
+ document.getElementById("hear").onclick=()=>ans?say(ans):say(it.q);
+ document.getElementById("did").onclick=()=>{if(!ans)return;addStar("me");say("Great job!")};
+ document.getElementById("next").onclick=()=>stMe(i<ME.length-1?i+1:0)}
+
+/* ---------- 2. 듣고 해요 (색·모양·크기) ---------- */
+const COLORS=[["red","var(--red)"],["blue","var(--blue)"],["yellow","var(--yellow)"],["green","var(--green)"]];
+const SHAPES=["circle","square","triangle","star"];
+function shapeSVG(shape,color,big){const s=big?1:0.55,o=50-45*s,w=90*s;let body;
+ if(shape==="circle")body=`<circle cx="50" cy="50" r="${45*s}"/>`;
+ else if(shape==="square")body=`<rect x="${o}" y="${o}" width="${w}" height="${w}" rx="${8*s}"/>`;
+ else if(shape==="triangle")body=`<polygon points="50,${50-45*s} ${50+47*s},${50+40*s} ${50-47*s},${50+40*s}"/>`;
+ else{let p=[];for(let k=0;k<10;k++){const r=k%2?20*s:47*s,a=-Math.PI/2+k*Math.PI/5;p.push((50+r*Math.cos(a)).toFixed(1)+","+(52+r*Math.sin(a)).toFixed(1))}body=`<polygon points="${p.join(" ")}"/>`}
+ return `<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="${color}" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round">${body}</g></svg>`}
+let doLevel=1,doStreak=0;
+function stDo(){let tiles,target,text;
+ const combos=shuffle(COLORS.flatMap(c=>SHAPES.map(s=>({c,s}))));
+ if(doLevel===1){tiles=combos.slice(0,6).map(x=>({...x,big:true}));target=pick(tiles);text=`Touch the ${target.c[0]} ${target.s}.`}
+ else{const three=combos.slice(0,3);tiles=shuffle(three.flatMap(x=>[{...x,big:true},{...x,big:false}]));target=pick(tiles);text=`Touch the ${target.big?"big":"small"} ${target.c[0]} ${target.s}.`}
+ app.innerHTML=topBar("듣고 해요")+teacher(text,doLevel===1?"1단계 · 색 + 모양":"2단계 · 크기 + 색 + 모양")+
+ `<div class="grid">${tiles.map((t,j)=>`<button class="tile" data-j="${j}" aria-label="${t.big?"big":"small"} ${t.c[0]} ${t.s}">${shapeSVG(t.s,t.c[1],t.big)}</button>`).join("")}</div>
+ <div class="note">선생님 말만 듣고 눌러요. 글자는 어른이 보는 용이에요. 세 번 연속 맞히면 2단계로 올라가요.</div>`;
+ bindBack();const sayQ=()=>say(text);document.getElementById("again").onclick=sayQ;setTimeout(sayQ,250);let done=false;
+ app.querySelectorAll(".tile").forEach(b=>b.onclick=()=>{if(done)return;const t=tiles[+b.dataset.j];
+  if(t===target){done=true;b.classList.add("ok");addStar("do");doStreak++;if(doStreak>=3&&doLevel===1){doLevel=2}
+   say(`Yes! The ${t.big&&doLevel===2?"big ":""}${t.c[0]} ${t.s}!`);setTimeout(stDo,1500)}
+  else{b.classList.add("no");doStreak=0;say(`That's the ${t.c[0]} ${t.s}. Try again!`);setTimeout(()=>b.classList.remove("no"),700)}})}
+
+/* ---------- 3. 영어로 수학 ---------- */
+const THINGS=[["🍎","apple","apples"],["⚽","ball","balls"],["🐶","dog","dogs"],["⭐","star","stars"],["🚗","car","cars"],["🦖","dinosaur","dinosaurs"]];
+const WORD=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve"];
+function three(n,lo,hi){const s=new Set([n]);while(s.size<3){const x=lo+rnd(hi-lo+1);s.add(x)}return shuffle([...s])}
+function stNum(){const type=pick(["count","count","more","after","shape"]);let text,ko,body,check,goodSay;
+ if(type==="count"){const th=pick(THINGS),n=1+rnd(10);text=`How many ${th[2]}?`;ko="몇 개일까?";
+  body=`<div class="count" aria-label="${n} ${th[2]}">${th[0].repeat(n)}</div><div class="opts">${three(n,1,10).map(x=>`<button class="opt" data-v="${x}">${x}</button>`).join("")}</div>`;
+  check=v=>v==n;goodSay=`Yes! ${WORD[n]} ${n===1?th[1]:th[2]}!`}
+ else if(type==="more"){const th=pick(THINGS);let a=1+rnd(8),b=1+rnd(8);while(a===b)b=1+rnd(8);text=`Which group has more ${th[2]}?`;ko="어느 쪽이 더 많을까?";
+  body=`<div class="groups">${[a,b].map((x,j)=>`<button class="count" data-v="${j}" aria-label="group ${j+1}">${th[0].repeat(x)}</button>`).join("")}</div>`;
+  check=v=>(v==0)===(a>b);goodSay=`Yes! ${WORD[Math.max(a,b)]} is more than ${WORD[Math.min(a,b)]}!`}
+ else if(type==="after"){const n=1+rnd(9);text=`What number comes after ${WORD[n]}?`;ko=`${n} 다음은 몇?`;
+  body=`<div class="scene" style="font-family:var(--f-en);font-weight:800">${n}, ?</div><div class="opts">${three(n+1,1,10).map(x=>`<button class="opt" data-v="${x}">${x}</button>`).join("")}</div>`;
+  check=v=>v==n+1;goodSay=`Yes! ${WORD[n+1]} comes after ${WORD[n]}!`}
+ else{const sh=shuffle(SHAPES).slice(0,3),t=pick(sh),col=pick(COLORS);text=`Which one is a ${t}?`;ko="이 모양은 어느 거?";
+  body=`<div class="grid">${sh.map(s=>`<button class="tile" data-v="${s}" aria-label="${s}">${shapeSVG(s,col[1],true)}</button>`).join("")}</div>`;
+  check=v=>v===t;goodSay=`Yes! That's a ${t}!`}
+ app.innerHTML=topBar("영어로 수학")+teacher(text,ko)+body+`<div class="note">칼빈 평가의 수학도 영어로 물어봐요. 숫자를 누르면 그 숫자를 영어로 읽어 줘요.</div>`;
+ bindBack();const sayQ=()=>say(text);document.getElementById("again").onclick=sayQ;setTimeout(sayQ,250);let done=false;
+ app.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{if(done)return;const v=b.dataset.v;
+  if(check(v)){done=true;b.classList.add("ok");addStar("num");say(goodSay);setTimeout(stNum,1900)}
+  else{b.classList.add("no");say(/^\d+$/.test(v)&&type!=="more"?`${WORD[+v]}? Try again!`:"Try again!");setTimeout(()=>b.classList.remove("no"),700)}})}
+
+/* ---------- 4. 교실에서 말해요 ---------- */
+const CLASS=[
+ ["🌞","아침에 선생님을 만났어요","Good morning, teacher!"],
+ ["🚽","화장실에 가고 싶어요","Can I go to the bathroom, please?"],
+ ["💧","목이 말라요","Can I have some water, please?"],
+ ["🆘","도움이 필요해요","Can you help me, please?"],
+ ["🤔","무슨 말인지 모르겠어요","I don't understand. Can you say it again?"],
+ ["🤕","넘어져서 아파요","I fell down. My knee hurts."],
+ ["🧸","친구랑 같이 놀고 싶어요","Can I play with you?"],
+ ["🙏","친구가 장난감을 빌려줬어요","Thank you!"],
+ ["✅","다 했어요","I'm finished!"],
+ ["👋","집에 갈 시간이에요","Goodbye! See you tomorrow!"]];
+let classOrder=shuffle(CLASS.map((_,i)=>i)),classI=0;
+function stClass(){const it=CLASS[classOrder[classI%CLASS.length]];const wrong=pick(CLASS.filter(x=>x!==it));const opts=shuffle([it,wrong]);let picked=false;
+ app.innerHTML=topBar("교실에서 말해요")+`<div class="scene" aria-hidden="true">${it[0]}</div><div class="say" style="text-align:center"><div style="font-size:22px">${it[1]}</div><div class="ko" style="color:var(--muted);font-size:14px;margin-top:4px">뭐라고 말할까? 두 개를 들어 보고 골라요</div></div>
+ <div class="row">${opts.map((o,j)=>`<button class="big blue" data-j="${j}" data-act="hear">🔊 ${j?"두 번째":"첫 번째"}</button>`).join("")}</div>
+ <div class="row">${opts.map((o,j)=>`<button class="opt wide" data-j="${j}" data-act="pick">${j?"두 번째!":"첫 번째!"}</button>`).join("")}</div>
+ <div class="say" id="sayBox" hidden><div class="en">${it[2]}</div></div>
+ <div class="row" id="after" hidden><button class="big green" id="did">⭐ 따라 말했어요</button><button class="big" id="next">다음 →</button></div>`;
+ bindBack();
+ app.querySelectorAll("[data-act=hear]").forEach(b=>b.onclick=()=>say(opts[+b.dataset.j][2]));
+ app.querySelectorAll("[data-act=pick]").forEach(b=>b.onclick=()=>{if(picked)return;const o=opts[+b.dataset.j];
+  if(o===it){picked=true;b.classList.add("ok");addStar("class");document.getElementById("sayBox").hidden=false;document.getElementById("after").hidden=false;say(`Yes! ${it[2]}`)}
+  else{b.classList.add("no");say("Hmm, listen again!");setTimeout(()=>b.classList.remove("no"),700)}});
+ document.getElementById("did").onclick=()=>{addStar("class");say("Great job!")};
+ document.getElementById("next").onclick=()=>{classI++;stClass()}}
+
+home();
+</script>
+
+</body>
+</html>
