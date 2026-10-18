@@ -3,68 +3,481 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>뉴선스토리</title>
-<meta name="description" content="원작 스튜디오 뉴선스토리 — 소설에서 시작한 세계를 영화로 옮깁니다.">
-<meta property="og:title" content="뉴선스토리">
-<meta property="og:description" content="원작 스튜디오 뉴선스토리 — 소설에서 시작한 세계를 영화로 옮깁니다.">
-<meta property="og:image" content="img/oldman_poster.jpg">
+<title>뉴선스토리 3D 전시관</title>
+<meta name="description" content="원작 스튜디오 뉴선스토리 — 안상욱의 소설에서 AI 영화까지, 걸어 들어가는 3D 전시관.">
 <meta name="theme-color" content="#0B0B0C">
-<link rel="icon" href="logo.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="뉴선스토리">
 <link rel="apple-touch-icon" href="img/icon-180.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Nanum+Myeongjo:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css">
+<link rel="icon" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;800&family=IBM+Plex+Sans+KR:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--wall:#0B0B0C;--panel:rgba(16,17,16,.94);--line:#2A2A27;--ink:#EDEDE8;--soft:#C9C9C2;--mute:#9A9A93;--green:#7CFFB2;--acc:#7CFFB2;
+--fd:"Nanum Myeongjo","Batang",serif;--fb:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;--fm:"IBM Plex Mono",ui-monospace,monospace;color-scheme:dark}
+*,::before,::after{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--wall);color:var(--ink);font-family:var(--fb);-webkit-text-size-adjust:100%}
+canvas#gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.mono{font-family:var(--fm);letter-spacing:.2em;text-transform:uppercase;font-size:11px}
+
+/* 상단 */
+#top{position:fixed;left:0;right:0;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));
+ background:linear-gradient(rgba(11,11,12,.85),rgba(11,11,12,0));pointer-events:none}
+#top>*{pointer-events:auto}
+.brand{display:flex;gap:10px;align-items:center;text-decoration:none}
+.brand img{width:28px;height:28px}
+.brand span{font-family:var(--fm);font-size:12px;letter-spacing:.3em}
+#where{font-family:var(--fm);font-size:11px;letter-spacing:.2em;color:var(--acc);text-transform:uppercase;text-align:right}
+.chip{border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;background:rgba(11,11,12,.6);text-decoration:none;white-space:nowrap}
+.chip:hover{border-color:var(--acc);color:var(--acc)}
+
+/* 하단 조작 */
+#hud{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;
+ padding:12px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+ background:linear-gradient(rgba(11,11,12,0),rgba(11,11,12,.9))}
+#hud .nav{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;background:rgba(11,11,12,.7);padding:4px}
+#hud .nav button{width:42px;height:42px;border-radius:50%;font-size:20px}
+#hud .nav button:hover{background:#1c1d1b;color:var(--acc)}
+#count{font-family:var(--fm);font-size:12px;letter-spacing:.15em;min-width:70px;text-align:center;color:var(--soft)}
+#hud.off{display:none}
+
+/* 작품 패널 */
+#panel{position:fixed;z-index:6;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100% - 32px));
+ background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;
+ max-height:calc(100% - 180px);overflow:auto;transition:opacity .35s,transform .35s}
+#panel.hide{opacity:0;transform:translateY(12px);pointer-events:none}
+#panel .meta{font-family:var(--fm);font-size:11px;letter-spacing:.15em;color:var(--acc);text-transform:uppercase}
+#panel h2{font-family:var(--fd);font-weight:800;font-size:26px;line-height:1.2;margin:0;text-wrap:balance}
+#panel p{margin:0;color:var(--soft);font-size:14px;line-height:1.65}
+#panel ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.5;color:var(--soft)}
+#panel li{padding-left:14px;position:relative}
+#panel li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:1px;background:var(--acc)}
+#panel .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+#panel .acts a,#panel .acts button{border:1px solid var(--acc);color:var(--acc);border-radius:999px;padding:8px 14px;font-size:13px;text-decoration:none}
+#panel .acts a:hover,#panel .acts button:hover{background:var(--acc);color:#0B0B0C}
+#panel .x{position:absolute;right:10px;top:8px;width:30px;height:30px;color:var(--mute);font-size:18px}
+
+/* 엘리베이터 */
+#elev{position:fixed;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:rgba(5,5,6,.72);backdrop-filter:blur(6px);
+ padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+#elev[hidden]{display:none}
+#elev .box{width:min(360px,100%);background:#111211;border:1px solid var(--line);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:8px}
+#elev .box>.mono{color:var(--mute);margin-bottom:6px}
+#elev .fl{display:flex;align-items:center;gap:14px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;text-align:left}
+#elev .fl b{font-family:var(--fm);font-size:15px;width:34px}
+#elev .fl span{display:flex;flex-direction:column;font-size:14px}
+#elev .fl small{color:var(--mute);font-size:12px}
+#elev .fl:hover,#elev .fl[aria-current]{border-color:var(--c);background:#181917}
+#elev .fl[aria-current] b{color:var(--c)}
+#elev .close{margin-top:8px;color:var(--mute);font-size:13px}
+
+/* 바깥 · 입구 화면 */
+#gate{position:fixed;inset:0;z-index:7;display:flex;flex-direction:column;justify-content:flex-end;gap:18px;
+ padding:24px max(20px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));
+ background:linear-gradient(rgba(11,11,12,0) 40%,rgba(11,11,12,.92));transition:opacity .8s;pointer-events:none}
+#gate>*{pointer-events:auto;max-width:640px}
+#gate.gone{opacity:0}
+#gate.gone>*{pointer-events:none}
+#gate h1{word-break:keep-all;font-family:var(--fd);font-weight:800;font-size:clamp(38px,8vw,72px);line-height:1.1;margin:0;letter-spacing:-.02em}
+#gate p{margin:0;color:var(--soft);font-size:16px;line-height:1.7;max-width:34em}
+#gate .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#enter{background:var(--green);color:#0B0B0C;border-radius:999px;padding:14px 26px;font-weight:500;font-size:16px}
+#enter:hover{filter:brightness(1.1)}
+#gate .hint{font-size:12px;color:var(--mute)}
+
+/* 장면 전환 */
+#fade{position:fixed;inset:0;z-index:9;background:#050506;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;opacity:1;transition:opacity .6s;pointer-events:none}
+#fade.clear{opacity:0}
+#fade b{font-family:var(--fm);font-size:56px;color:var(--acc);letter-spacing:.1em}
+#fade span{font-family:var(--fd);font-size:20px}
+#nogl{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;text-align:center;padding:24px}
+@media (max-width:560px){#panel{right:16px;left:16px;width:auto;bottom:calc(76px + env(safe-area-inset-bottom,0px));max-height:46%}#panel h2{font-size:22px}#top .chip.hide-s{display:none}}
+@media (prefers-reduced-motion:reduce){#panel,#gate,#fade{transition:none}}
+</style>
 </head>
 <body>
-<header class="top"><div class="w"><a class="brand" href="index.html"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="뉴선스토리 마크">
-<circle cx="50" cy="50" r="46" fill="none" stroke="#C9A24B" stroke-width="5"/>
-<g fill="#C9A24B"><ellipse cx="50.0" cy="20.0" rx="7" ry="11" transform="rotate(0 50.0 20.0)"/><ellipse cx="78.5" cy="40.7" rx="7" ry="11" transform="rotate(72 78.5 40.7)"/><ellipse cx="67.6" cy="74.3" rx="7" ry="11" transform="rotate(144 67.6 74.3)"/><ellipse cx="32.4" cy="74.3" rx="7" ry="11" transform="rotate(216 32.4 74.3)"/><ellipse cx="21.5" cy="40.7" rx="7" ry="11" transform="rotate(288 21.5 40.7)"/></g>
-<circle cx="50" cy="50" r="19" fill="#B8742E"/></svg><span>NEWSUNSTORY</span></a><nav class="menu" aria-label="전시관 메뉴"><a href="index.html" aria-current="page">로비</a><a href="noin.html">기획전</a><a href="index.html#floors">층 안내</a><a href="index.html#director">감독실</a><a href="press.html">프레스룸</a></nav></div></header>
-<main>
+<canvas id="gl" aria-label="3D 전시관"></canvas>
 
-<section class="hero" style="border-top:0"><div class="w">
-<div class="t fade"><div class="eyebrow">Exhibition · Films &amp; Novels · 2026</div><h1>뉴선스토리</h1>
-<div style="display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline"><span style="font-size:18px">원작 스튜디오 뉴선스토리</span><span class="eyebrow" style="letter-spacing:.24em">NEWSUNSTORY</span></div>
-<p class="lead">소설에서 시작한 세계를 영화로 옮깁니다.</p>
-<a class="btn" href="#special">들어가기 <span aria-hidden="true">↓</span></a></div>
-<figure><img src="img/oldman_poster.jpg" alt="〈올드만〉 메인 포스터 — 방독면" style="aspect-ratio:2025/3000;object-fit:cover"><figcaption class="cap">〈올드만 – 오프 더 레코드〉 · 2026 · 기획전</figcaption></figure>
-</div></section>
+<div id="top">
+ <a class="brand" href="lobby.html" aria-label="뉴선스토리 2D 로비"><img src="logo.svg" alt=""><span>NEWSUN STORY</span></a>
+ <div style="display:flex;gap:8px;align-items:center">
+  <span id="where"></span>
+  <a class="chip hide-s" href="lobby.html">2D로 보기</a>
+ </div>
+</div>
 
-<section id="special"><div class="w">
-<div style="display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between"><h2>지금 열린 기획전</h2><div class="eyebrow" style="color:var(--green)">Special Exhibition · 2026 –</div></div>
-<a class="special" href="noin.html"><div class="t"><div class="eyebrow" style="color:var(--green)">3부작 · The Age of the Old</div><h3 style="font-size:clamp(32px,4vw,44px)">『노인의 시대』</h3>
-<p class="lead" style="font-size:16px">원작 장편소설 『노인의 시대』에서 시작한 영화 3부작.</p>
-<div style="display:flex;flex-direction:column;gap:4px;font-size:16px">
-<div><span class="eyebrow" style="color:var(--green)">1부</span>  〈올드만 – 오프 더 레코드〉 <span style="color:var(--mute)">· 2026 완성</span></div>
-<div><span class="eyebrow" style="color:#C98F6E">2부</span>  〈카니발 – 침묵의 인터뷰〉 <span style="color:var(--mute)">· 2027 제작</span></div>
-<div><span class="eyebrow" style="color:#D4A24C">3부</span>  〈신곡 – 지옥의 라이브〉 <span style="color:var(--mute)">· 2026 완성</span></div></div>
-<div style="margin-top:auto;font-size:15px">기획전 들어가기 →</div></div>
-<img src="img/oldman_monitors.jpg" alt="〈올드만〉 스틸 — 모니터 벽 앞의 비명"></a>
-</div></section>
+<div id="gate">
+ <div class="mono" style="color:var(--green)">Newsun Story · 3D Exhibition</div>
+ <h1>소설에서 시작한 세계를<br>영화로 옮깁니다.</h1>
+ <p>원작 스튜디오 뉴선스토리의 전시관입니다. 1층 로비에서 기획전 『노인의 시대』로, 엘리베이터로 2층부터 6층까지 — 영화, AI 영화, 무대, 소설, 연구를 차례로 걸어 보실 수 있습니다.</p>
+ <div class="row"><button id="enter">들어가기</button><a class="chip" href="lobby.html">2D 로비로</a></div>
+ <div class="hint">작품을 누르면 다가갑니다 · ← → 또는 옆으로 밀어서 다음 작품</div>
+</div>
 
-<section id="floors"><div class="w">
-<div style="display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between"><h2>상설전 · 층 안내</h2><div class="eyebrow">Permanent Collection · 1F – 6F</div></div>
-<nav class="floors" aria-label="층 안내"><a href="f6.html"><span class="n" style="color:#9AA7B3">6F</span><span class="d"><b>연구 · 저서</b><span>『영화 각색, 10가지 스타일』 · 박사논문 「각색 스타일 연구」</span></span><span aria-hidden="true">→</span></a><a href="f5.html"><span class="n" style="color:#B8A27A">5F</span><span class="d"><b>소설 · 그림책</b><span>『신혼록』 · 『인간전』 · 『노인의 시대』 · 그림책 『공룡소』</span></span><span aria-hidden="true">→</span></a><a href="f4.html"><span class="n" style="color:#C98F6E">4F</span><span class="d"><b>무대 · 시나리오</b><span>〈밤낚시〉 · 〈럭키 페니〉 · 〈무단침입〉</span></span><span aria-hidden="true">→</span></a><a href="f3.html"><span class="n" style="color:#EDEDE8">3F</span><span class="d"><b>AI 영화</b><span>〈벌레〉 BEOL-LAE · 〈불사자〉 · 〈아라비안 나이트〉</span></span><span aria-hidden="true">→</span></a><a href="f2.html"><span class="n" style="color:#7FA8D6">2F</span><span class="d"><b>영화</b><span>〈구인〉 Salvar · 〈스페인에서〉 · 〈오 솔레 미오〉</span></span><span aria-hidden="true">→</span></a><a href="press.html"><span class="n" style="color:var(--green)">1F</span><span class="d"><b>로비 · 안내 데스크</b><span>프레스킷 · 연락처</span></span><span aria-hidden="true">→</span></a></nav>
-</div></section>
+<div id="hud" class="off">
+ <div class="nav"><button id="prev" aria-label="이전 작품">‹</button><span id="count">—</span><button id="next" aria-label="다음 작품">›</button></div>
+ <button class="chip" id="elevBtn">엘리베이터</button>
+ <button class="chip" id="lobbyBtn">1F 로비</button>
+</div>
 
-<section id="director"><div class="w" style="flex-direction:row;flex-wrap:wrap;gap:40px">
-<div style="flex:0 1 260px;min-width:0;display:flex;flex-direction:column;gap:10px"><div class="eyebrow">Director's Room</div><h2>감독실</h2>
-<div style="width:120px;margin-top:10px"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="뉴선스토리 마크">
-<circle cx="50" cy="50" r="46" fill="none" stroke="#C9A24B" stroke-width="5"/>
-<g fill="#C9A24B"><ellipse cx="50.0" cy="20.0" rx="7" ry="11" transform="rotate(0 50.0 20.0)"/><ellipse cx="78.5" cy="40.7" rx="7" ry="11" transform="rotate(72 78.5 40.7)"/><ellipse cx="67.6" cy="74.3" rx="7" ry="11" transform="rotate(144 67.6 74.3)"/><ellipse cx="32.4" cy="74.3" rx="7" ry="11" transform="rotate(216 32.4 74.3)"/><ellipse cx="21.5" cy="40.7" rx="7" ry="11" transform="rotate(288 21.5 40.7)"/></g>
-<circle cx="50" cy="50" r="19" fill="#B8742E"/></svg></div></div>
-<div style="flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:16px;max-width:40em">
-<h3>안상욱</h3>
-<p style="font-size:17px">소설을 쓰고, 그 소설을 영화로 옮긴다. 서강대학교에서 영상학 박사와 경영학 석사를 받았고, 2023년 뉴선스토리를 세웠다. 단편 〈구인〉은 40여 개 국제영화제에 선정·수상했고, AI 단편 〈벌레〉는 테헤란과 베이루트에 선정되었다. 지금은 자신의 장편소설 『노인의 시대』를 AI 영화 3부작으로 만들고 있다.</p>
-<p class="en">Ahn Sangwook writes novels and turns them into films. He founded NewSunStory in 2023 and is now making his own novel, The Age of the Old, into an AI film trilogy.</p>
-<ul class="marks"><li>서강대학교 영상학 박사 · 경영학 석사</li><li>추계예술대학교 영상시나리오학과</li><li>저서 『영화 각색, 10가지 스타일』</li></ul>
-</div></div></section>
+<div id="panel" class="hide" role="dialog" aria-live="polite">
+ <button class="x" id="px" aria-label="닫기">×</button>
+ <div class="meta" id="pm"></div>
+ <h2 id="pt"></h2>
+ <p id="pn"></p>
+ <ul id="pl"></ul>
+ <div class="acts" id="pa"></div>
+</div>
 
-</main>
-<footer><div class="w">
-<div style="display:flex;flex-direction:column;gap:4px"><div class="eyebrow">Contact</div><div class="mail">asam8@naver.com</div></div>
-<a class="btn g" href="press.html">프레스킷 →</a>
-<div class="cap">© 2026 NewSunStory Co.,Ltd. · (주)뉴선스토리</div>
-</div></footer>
+<div id="elev" hidden>
+ <div class="box" role="dialog" aria-label="엘리베이터">
+  <div class="mono">Elevator · 층을 고르세요</div>
+  <div id="elevList" style="display:flex;flex-direction:column;gap:8px"></div>
+  <button class="close" id="elevClose">닫기</button>
+ </div>
+</div>
+
+<div id="fade"><b id="fadeN"></b><span id="fadeT"></span></div>
+<div id="nogl"><div><p>이 브라우저에서는 3D 전시관을 열 수 없습니다.</p><p style="margin-top:12px"><a class="chip" href="lobby.html">2D 로비로 가기</a></p></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+/* ---------------- 전시 데이터 ---------------- */
+var SP = {
+ lobby:{n:"1F",name:"로비",en:"LOBBY",c:"#7CFFB2",wall:0x141615,items:[
+  {t:"『노인의 시대』 기획전",m:"Special Exhibition · AI 영화 3부작",img:"oldman_poster.jpg",a:900/1333,
+   n:"원작 장편소설 『노인의 시대』에서 갈라져 나온 세 편의 영화 — 올드만 · 카니발 · 신곡.",
+   l:["1부 〈올드만 – 오프 더 레코드〉 2026","2부 〈카니발 – 침묵의 인터뷰〉 2027","3부 〈신곡 – 지옥의 라이브〉 2026"],go:"noin",goL:"기획전으로 들어가기"},
+  {t:"엘리베이터",m:"2F – 6F",card:["ELEVATOR","2F 영화 · 3F AI 영화","4F 무대 · 5F 소설 · 6F 연구"],a:3/4,
+   n:"층마다 색 하나. 위층으로 올라갈수록 영화의 원작과 방법에 가까워집니다.",l:[],elev:1},
+  {t:"감독실",m:"Director · 안상욱 Ahn Sangwook",card:["DIRECTOR","안상욱","AHN SANG-WOOK"],a:3/4,
+   n:"소설을 쓰고, 그 소설을 영화로 옮깁니다. 영화 각색 연구로 박사학위를 받았습니다.",l:["원작 스튜디오 뉴선스토리 대표","『영화 각색, 10가지 스타일』 저자"],href:"lobby.html#director",hrefL:"감독실 보기"},
+  {t:"안내 데스크",m:"Press Room · 프레스킷 · 연락처",card:["PRESS","안내 데스크","asam8@naver.com"],a:3/4,
+   n:"프레스킷, 작품 정보, 연락처를 안내합니다.",l:["asam8@naver.com"],href:"press.html",hrefL:"프레스룸으로"}
+ ]},
+ noin:{n:"SP",name:"『노인의 시대』",en:"THE AGE OF THE OLD",c:"#7CFFB2",wall:0x101211,page:"noin.html",items:[
+  {t:"올드만 – 오프 더 레코드",m:"1부 · 2026 · 15분 · SF 페이크 다큐멘터리",img:"oldman_poster.jpg",a:900/1333,
+   n:"익명의 해커가 세상이 봐서는 안 될 기록을 흘린다. 영원을 약속한 팬데믹 \"치료제\" 이후 노인들은 껍데기로 버려졌다 — 그중 한 명이 돌아오기 전까지는.",
+   l:["영화진흥위원회 2026 AI 기반 영화 제작지원작","원작 장편소설 『노인의 시대』 1장 「올드만의 기억」"]},
+  {t:"모니터 벽",m:"〈올드만〉 스틸",img:"oldman_monitors.jpg",a:1600/679,l:[]},
+  {t:"붉은 안개 속 방역군",m:"〈올드만〉 스틸",img:"oldman_redfog.jpg",a:1600/680,l:[]},
+  {t:"경기장",m:"〈올드만〉 스틸",img:"oldman_stadium.jpg",a:1600/680,l:[]},
+  {t:"크로노스의 탄생",m:"〈올드만〉 스틸",img:"oldman_kronos.jpg",a:1600/680,l:[]},
+  {t:"카니발 – 침묵의 인터뷰",m:"2부 · 2027",card:["PART TWO · 2027","카니발","침묵의 인터뷰"],a:2/3,dark:1,
+   n:"다음 전시를 준비하고 있습니다.",l:[]},
+  {t:"신곡 – 지옥의 라이브",m:"3부 · 2026 · 10분 · INFERNO – LIVE",img:"singok_cage.jpg",a:1600/680,
+   n:"심장에 자폭장치를 꿰맨 한 사람이 지하 일곱 층을 지나 위로 올라간다. 그 모든 길이 생중계된다.",
+   l:["1인칭 생중계 형식","부천 · SBS A&T AI 영화 교육 수료작","영상은 영화제 상영 뒤에 공개합니다"]},
+  {t:"〈신곡〉 스틸",m:"3부",img:"singok_meat.jpg",a:1600/680,l:[]}
+ ]},
+ f2:{n:"2F",name:"영화",en:"FILMS",c:"#7FA8D6",wall:0x10141a,page:"f2.html",
+  more:["스테이 2015 — 테헤란 국제단편영화제 선정","해피 버스데이 2013 — 휴스턴 동상 · 서강영화제 최우수상","위안 2019 — 현진건 「할머니의 죽음」 각색","나쁜 놈들 2011 — Stop! 성매매 영상제 공동대상"],
+  items:[
+  {t:"구인",m:"2022 · 단편 · SALVAR",card:["SALVAR","구인","2022"],a:2/3,l:["2021 부천국제판타스틱영화제 괴담 단편영화 제작지원 선정","2022~2024 40여 개 국제영화제 선정·수상","인디펜던트 호러 무비 어워즈 4관왕","London Film & Horror Awards 아시아 감독상"]},
+  {t:"스페인에서",m:"2019 · 단편 · 한국·스페인 합작",card:["IN SPAIN","스페인에서","2019"],a:2/3,l:["마드리드 국제영화제 최우수 외국어 단편영화상","앤트워프 최우수 외국어 각본상"]},
+  {t:"오 솔레 미오",m:"2016 · 단편",card:["O SOLE MIO","오 솔레 미오","2016"],a:2/3,l:["제50회 휴스턴 국제영화제 단편 부문 금상"]}
+ ]},
+ f3:{n:"3F",name:"AI 영화",en:"AI FILMS",c:"#EDEDE8",wall:0x141414,page:"f3.html",
+  more:["여덟번째 인간 2026","뉴월드 2025 — BIFAN AI 영화 워크숍","그것의 기록 2025 — NewFilmmakers New York","삼사라 2025 — 서울국제AI영화제 파이널리스트","3류 SF 영화 2025 · Karma"],
+  items:[
+  {t:"벌레",m:"2025 · AI 단편 · 대사 없음 · BEOL-LAE",img:"beollae_poster.jpg",a:900/1272,n:"시골집 벌레를 잡은 남편이 '고맙다'는 말에 무너지는, 대사 없는 부부 이야기.",
+   l:["제43회 테헤란 국제단편영화제 국제경쟁 선정 (2026, 아카데미 공인)","제20회 베이루트 단편 국제영화제 AI Innovation Competition 선정 (2026, 아카데미 공인)","KAFA 첨단 AI 영화 제작 교육 1기 — 원작 동명 단편소설"]},
+  {t:"불사자",m:"2026 · AI 애니메이션",img:"bulsaja.jpg",a:791/396,l:["제4회 부라노 AI 영화제(BAIFF, 베네치아) 공식 노미네이션"]},
+  {t:"아라비안 나이트",m:"2026 · AI 단편 뮤지컬",card:["ARABIAN NIGHTS","아라비안 나이트","2026"],a:2/3,l:["노래하는 입을 찍지 않고, 노래 위에 다른 그림을 얹는 뮤지컬","장편 〈아랍의 밤〉으로 확장 중"]}
+ ]},
+ f4:{n:"4F",name:"무대 · 시나리오",en:"STAGE & SCREENPLAYS",c:"#C98F6E",wall:0x17110e,page:"f4.html",items:[
+  {t:"밤낚시",m:"희곡",card:["PLAY","밤낚시","희곡"],a:2/3,l:["2022 대명동에 작가가 산다 쇼케이스","2025 대구 국제 힐링 호러 연극 예술제 초청"]},
+  {t:"럭키 페니",m:"뮤지컬 · LUCKY PENNY",card:["MUSICAL","럭키 페니","LUCKY PENNY"],a:2/3,l:["2021 카이신마화 뮤지컬 부문 대상"]},
+  {t:"무단침입",m:"시나리오",card:["SCREENPLAY","무단침입","시나리오"],a:2/3,l:["2020 세계문학예술 신인상","2021 영상작가전문교육원 우수상"]}
+ ]},
+ f5:{n:"5F",name:"소설 · 그림책",en:"NOVELS & PICTURE BOOKS",c:"#B8A27A",wall:0x16140f,page:"f5.html",
+  more:["수학여행 — 문학광장 신인상","내 아들의 세월 — 소설미학 신인상","3류 SF 소설 2023 — 한국과학창의재단 과학스토리텔러 선정","「인간 4부작」 『인간전』 → 『인간시절』 → 『노인의 시대』 → 「인간 탈출」"],
+  items:[
+  {t:"노인의 시대",m:"웹소설 · 「인간 4부작」",card:["NOVEL","노인의 시대","THE AGE OF THE OLD"],a:2/3,l:["2024 제2회 대전콘텐츠코리아랩 웹소설 크리에이트 선정","영화 3부작 『노인의 시대』의 원작"],go:"noin",goL:"기획전 보기"},
+  {t:"신혼록",m:"장편소설 · 마카롱 e-book 2023",img:"cover_sinhon.jpg",a:380/543,l:["2022 아르코 문학창작기금 선정","2023 e-book 출간","2025 오디오북 출간"],ext:["교보문고 e-book","https://ebook-product.kyobobook.co.kr/dig/epd/ebook/480D231155040"]},
+  {t:"인간전",m:"장편소설 · 人間戰 · 마카롱 e-book 2023",img:"cover_ingan.jpg",a:380/547,l:["2022 교보문고 〈창작의 날씨〉 초대작가","2023 e-book 출간 (필명 태양전설)","731부대가 만든 좀비와 조선인 포로들의 탈출"],ext:["교보문고 e-book","https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000005458248"]},
+  {t:"공룡소",m:"그림책 · 글과 그림 안상욱",img:"dino.jpg",a:1200/886,l:["2023 아르코 〈창작의 과정〉 선정","2024 전주출판학교 선정","코에 뿔이 없고 머리에 뿔이 난 코뿔소 아이 이야기"]}
+ ]},
+ f6:{n:"6F",name:"연구 · 저서",en:"RESEARCH",c:"#9AA7B3",wall:0x111316,page:"f6.html",
+  more:["〈대부〉 오프닝 시퀀스 각색 스타일 연구 2018","OTT 플랫폼 선택 요인 연구 2024 — 서강대 경영전문대학원"],
+  items:[
+  {t:"영화 각색, 10가지 스타일",m:"2020 · 커뮤니케이션북스 이론 총서",card:["BOOK","영화 각색,","10가지 스타일"],a:2/3,l:["각색을 주제·인물·대비·교차·인과·인칭·퍼즐 등 열 가지 유형으로 분류"],ext:["교보문고","https://product.kyobobook.co.kr/detail/S000001675146"]},
+  {t:"각색 스타일 연구",m:"2020 · 서강대학교 박사학위논문",card:["DISSERTATION","각색 스타일 연구","〈대부〉와 〈대부Ⅱ〉"],a:2/3,l:["〈대부〉와 〈대부Ⅱ〉를 중심으로"]}
+ ]}
+};
+var ORDER=["noin","f2","f3","f4","f5","f6"];
+
+/* ---------------- 기본 ---------------- */
+var $=function(id){return document.getElementById(id)};
+var canvas=$("gl"),renderer;
+try{renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true});}catch(e){$("nogl").style.display="flex";$("fade").classList.add("clear");return;}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+var scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(55,1,0.05,200);
+var group=null,clickables=[],frames=[],cur=-1,spaceKey=null,busy=false;
+var camPos=new THREE.Vector3(),camLook=new THREE.Vector3(),tw=null;
+var look={x:0,y:0,tx:0,ty:0};
+var loader=new THREE.TextureLoader();
+var FD='"Nanum Myeongjo","Batang",serif',FM='"IBM Plex Mono",monospace',FB='"IBM Plex Sans KR",sans-serif';
+
+function resize(){var w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<h?70:55;camera.updateProjectionMatrix();}
+addEventListener("resize",resize);resize();
+
+function cv(w,h){var c=document.createElement("canvas");c.width=w;c.height=h;return c;}
+function texFrom(c){var t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t;}
+function wrapText(x,str,maxW){var out=[],line="";str.split(" ").forEach(function(w){var test=line?line+" "+w:w;if(x.measureText(test).width>maxW&&line){out.push(line);line=w;}else line=test;});if(line)out.push(line);return out;}
+
+function cardTex(lines,color,dark){
+ var c=cv(800,1200),x=c.getContext("2d");
+ x.fillStyle=dark?"#070707":"#121311";x.fillRect(0,0,800,1200);
+ x.strokeStyle=color;x.globalAlpha=.5;x.lineWidth=2;x.strokeRect(40,40,720,1120);x.globalAlpha=1;
+ x.fillStyle=color;x.font="500 30px "+FM;x.textAlign="center";x.fillText(lines[0].split("").join(String.fromCharCode(8202)),400,160);
+ x.fillStyle="#EDEDE8";var size=lines[1].length>6?96:132;x.font="800 "+size+"px "+FD;
+ var ls=wrapText(x,lines[1],640);var y=600-(ls.length-1)*size*.6;ls.forEach(function(l,i){x.fillText(l,400,y+i*size*1.15);});
+ x.fillStyle="#9A9A93";x.font="400 38px "+FD;x.fillText(lines[2]||"",400,1000);
+ if(dark){x.fillStyle=color;x.globalAlpha=.08;x.fillRect(40,40,720,1120);x.globalAlpha=1;}
+ return texFrom(c);
+}
+function plaqueTex(t,m,color){
+ var c=cv(1024,256),x=c.getContext("2d");x.fillStyle="#E9E7E0";x.fillRect(0,0,1024,256);
+ x.fillStyle=color==="#EDEDE8"?"#444":color;x.fillRect(0,0,10,256);
+ x.fillStyle="#111";x.font="800 64px "+FD;x.fillText(t.length>16?t.slice(0,16)+"…":t,44,110);
+ x.fillStyle="#555";x.font="400 30px "+FB;var mm=m.length>40?m.slice(0,40)+"…":m;x.fillText(mm,46,180);
+ return texFrom(c);
+}
+function signTex(top,big,sub,color,w,h){
+ w=w||1600;h=h||800;var c=cv(w,h),x=c.getContext("2d");x.clearRect(0,0,w,h);x.textAlign="center";
+ x.fillStyle=color;x.font="500 "+Math.round(h*.06)+"px "+FM;x.fillText(top,w/2,h*.26);
+ x.fillStyle="#EDEDE8";x.font="800 "+Math.round(h*.22)+"px "+FD;x.fillText(big,w/2,h*.58);
+ x.fillStyle="#9A9A93";x.font="400 "+Math.round(h*.055)+"px "+FB;(sub||[]).forEach(function(s,i){x.fillText(s,w/2,h*.74+i*h*.075);});
+ return texFrom(c);
+}
+function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+function glide(pos,lk,dur,cb){tw={p0:camPos.clone(),l0:camLook.clone(),p1:pos.clone(),l1:lk.clone(),s:performance.now(),d:(dur||1.1)*1000,cb:cb};}
+function dispose(o){o.traverse(function(m){if(m.geometry)m.geometry.dispose();if(m.material){var ms=Array.isArray(m.material)?m.material:[m.material];ms.forEach(function(mt){if(mt.map)mt.map.dispose();mt.dispose();});}});}
+function setAccent(c){document.documentElement.style.setProperty("--acc",c);}
+
+/* ---------------- 바깥: 건물 ---------------- */
+function buildExterior(){
+ var g=new THREE.Group();scene.fog=new THREE.Fog(0x07080a,18,70);scene.background=new THREE.Color(0x07080a);
+ g.add(new THREE.HemisphereLight(0x8899aa,0x0a0a0a,.5));
+ var moon=new THREE.DirectionalLight(0xbfd0ff,.5);moon.position.set(-10,20,12);g.add(moon);
+ var ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0x0c0d0e,roughness:.35,metalness:.4}));ground.rotation.x=-Math.PI/2;g.add(ground);
+ // 건물 몸체 6층
+ var W=10,FH=2.2,FLOORN=6,H=FH*FLOORN;
+ var body=new THREE.Mesh(new THREE.BoxGeometry(W,H,7),new THREE.MeshStandardMaterial({color:0x17181a,roughness:.8}));body.position.set(0,H/2,-4);g.add(body);
+ // 층별 창 띠
+ var cols=["#7CFFB2","#7FA8D6","#EDEDE8","#C98F6E","#B8A27A","#9AA7B3"];
+ for(var f=1;f<FLOORN;f++){
+  var col=new THREE.Color(cols[f]);
+  for(var i=0;i<5;i++){
+   var win=new THREE.Mesh(new THREE.PlaneGeometry(1.4,1.1),new THREE.MeshBasicMaterial({color:Math.random()<.7?col.clone().multiplyScalar(.18+Math.random()*.3):new THREE.Color(0x0d0e10)}));
+   win.position.set(-4+i*2,f*FH+FH/2,-.49);g.add(win);
+  }
+  var lab=new THREE.Mesh(new THREE.PlaneGeometry(1,.5),new THREE.MeshBasicMaterial({map:signTex("",(f+1)+"F","",cols[f],256,128),transparent:true}));
+  lab.position.set(W/2+.6,f*FH+FH/2,-.4);g.add(lab);
+ }
+ // 1층 유리 로비 + 문
+ var glass=new THREE.Mesh(new THREE.PlaneGeometry(9,1.9),new THREE.MeshBasicMaterial({color:0x0f2a1e}));glass.position.set(0,1.05,-.48);g.add(glass);
+ var door=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.9),new THREE.MeshBasicMaterial({color:0x7CFFB2}));door.position.set(0,1.05,-.46);g.add(door);door.userData.door=1;clickables.push(door);
+ var glow=new THREE.PointLight(0x7CFFB2,1.4,9);glow.position.set(0,1.2,1);g.add(glow);
+ // 간판
+ var sign=new THREE.Mesh(new THREE.PlaneGeometry(8,2.4),new THREE.MeshBasicMaterial({map:signTex("ORIGINAL STORY STUDIO","뉴선스토리","","#7CFFB2",1600,480),transparent:true,fog:false}));
+ sign.scale.set(1.5,1.5,1);sign.position.set(0,H+1.2,-.5);g.add(sign);
+ // 로고 원판
+ var lg=new Image();lg.onload=function(){var c=cv(512,512),x=c.getContext("2d");x.drawImage(lg,0,0,512,512);
+  var m=new THREE.Mesh(new THREE.CircleGeometry(.9,48),new THREE.MeshBasicMaterial({map:texFrom(c),transparent:true}));m.position.set(-W/2+1.4,1.2,-.45);g.add(m);};lg.src="logo.svg";
+ // 가로등
+ for(var k=-1;k<=1;k+=2){var pole=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,3.6,8),new THREE.MeshStandardMaterial({color:0x222222}));pole.position.set(k*7,1.8,3);g.add(pole);
+  var bulb=new THREE.PointLight(0xffd9a0,.8,10);bulb.position.set(k*7,3.6,3);g.add(bulb);
+  var b=new THREE.Mesh(new THREE.SphereGeometry(.14,12,12),new THREE.MeshBasicMaterial({color:0xffe2b0}));b.position.copy(bulb.position);g.add(b);}
+ // 별
+ var sg=new THREE.BufferGeometry(),pts=[];for(var s=0;s<500;s++){pts.push((Math.random()-.5)*160,20+Math.random()*50,-30-Math.random()*60);}
+ sg.setAttribute("position",new THREE.Float32BufferAttribute(pts,3));g.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x9aa7b3,size:.15})));
+ var wide=camera.aspect>1.15,ox=wide?-6.5:0;
+ camPos.set(ox,4.5,26);camLook.set(ox,6,-4);
+ glide(new THREE.Vector3(ox*.7,3,wide?19:24),new THREE.Vector3(ox,wide?6.5:8,-4),3);
+ return g;
+}
+
+/* ---------------- 실내: 전시실 ---------------- */
+function frameMesh(it,color,space){
+ var g=new THREE.Group(),a=it.a||2/3,maxW=a>1?3.6:2.0,maxH=2.4,w,h;
+ if(a>1){w=Math.min(maxW,maxH*a);h=w/a;}else{h=Math.min(maxH,maxW/a);w=h*a;}
+ var frameMat=new THREE.MeshStandardMaterial({color:0x1a1a18,roughness:.6,metalness:.2});
+ var back=new THREE.Mesh(new THREE.BoxGeometry(w+.16,h+.16,.08),frameMat);g.add(back);
+ var mat=new THREE.MeshBasicMaterial({color:0x222222});
+ var pic=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);pic.position.z=.045;g.add(pic);
+ if(it.img){loader.load("img/"+it.img,function(t){t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();mat.map=t;mat.color.set(0xffffff);mat.needsUpdate=true;});}
+ else{mat.map=cardTex(it.card||["",it.t,""],color,it.dark);mat.color.set(0xffffff);}
+ var pl=new THREE.Mesh(new THREE.PlaneGeometry(1.1,.275),new THREE.MeshBasicMaterial({map:plaqueTex(it.t,it.m||"",color)}));
+ pl.position.set(w/2-.55,-h/2-.35,.02);g.add(pl);
+ pic.userData.idx=frames.length;back.userData.idx=frames.length;clickables.push(pic,back);
+ g.userData.h=h;g.userData.w=w;return g;
+}
+function buildRoom(key){
+ var S=SP[key],items=S.items,n=items.length,W=8.4,H=4.2,STEP=6,L=Math.ceil(n/2)*STEP+6;
+ var g=new THREE.Group(),col=new THREE.Color(S.c);
+ scene.background=new THREE.Color(0x050506);scene.fog=new THREE.Fog(0x050506,14,L+12);
+ g.add(new THREE.HemisphereLight(0xffffff,0x111111,.35));g.add(new THREE.AmbientLight(0xffffff,.12));
+ var wallMat=new THREE.MeshStandardMaterial({color:S.wall,roughness:.95});
+ var floorMat=new THREE.MeshStandardMaterial({color:0x0d0d0e,roughness:.3,metalness:.5});
+ var fl=new THREE.Mesh(new THREE.PlaneGeometry(W,L+4),floorMat);fl.rotation.x=-Math.PI/2;fl.position.z=-L/2+2;g.add(fl);
+ var ce=new THREE.Mesh(new THREE.PlaneGeometry(W,L+4),wallMat);ce.rotation.x=Math.PI/2;ce.position.set(0,H,-L/2+2);g.add(ce);
+ [-1,1].forEach(function(s){var wl=new THREE.Mesh(new THREE.PlaneGeometry(L+4,H),wallMat);wl.rotation.y=-s*Math.PI/2;wl.position.set(s*W/2,H/2,-L/2+2);g.add(wl);
+  var strip=new THREE.Mesh(new THREE.PlaneGeometry(L+4,.03),new THREE.MeshBasicMaterial({color:col}));strip.rotation.y=-s*Math.PI/2;strip.position.set(s*(W/2-.01),.12,-L/2+2);g.add(strip);});
+ var endW=new THREE.Mesh(new THREE.PlaneGeometry(W,H),wallMat);endW.position.set(0,H/2,-L);g.add(endW);
+ var backW=new THREE.Mesh(new THREE.PlaneGeometry(W,H),wallMat);backW.rotation.y=Math.PI;backW.position.set(0,H/2,4);g.add(backW);
+ // 천장 빛줄
+ var lineL=new THREE.Mesh(new THREE.PlaneGeometry(.08,L),new THREE.MeshBasicMaterial({color:0xfafaf0}));lineL.rotation.x=Math.PI/2;lineL.position.set(0,H-.01,-L/2+1);g.add(lineL);
+ // 끝벽 간판
+ var sub=S.more?["더 보기 — 간판을 누르세요"]:[];
+ if(key==="lobby")sub=["ORIGINAL STORY STUDIO"];
+ var sg=new THREE.Mesh(new THREE.PlaneGeometry(6,3),new THREE.MeshBasicMaterial({map:signTex(S.n+" · "+S.en,S.name,sub,S.c),transparent:true}));
+ sg.position.set(0,2.3,-L+.02);g.add(sg);
+ frames=[];clickables=[];
+ items.forEach(function(it,i){
+  var side=i%2===0?-1:1,z=-(3+Math.floor(i/2)*STEP)-(side>0?STEP/2:0);
+  var fm=frameMesh(it,S.c,key);fm.position.set(side*(W/2-.05),1.75,z);fm.rotation.y=side<0?Math.PI/2:-Math.PI/2;g.add(fm);
+  var sp=new THREE.SpotLight(0xfff4e0,1.6,9,.42,.5,1.2);sp.position.set(side*(W/2-2.2),H-.1,z);sp.target=fm;g.add(sp);
+  frames.push({it:it,side:side,z:z,w:fm.userData.w+.3,h:fm.userData.h+.9,W:W});
+ });
+ // 끝벽 간판도 하나의 정류장
+ sg.userData.idx=frames.length;clickables.push(sg);
+ frames.push({it:{t:S.name,m:S.n+" · "+S.en,n:key==="lobby"?"원작 스튜디오 뉴선스토리. 소설에서 시작한 세계를 영화로 옮깁니다.":"",l:S.more||[],sign:1},pos:new THREE.Vector3(0,1.8,-L+5.2),look:new THREE.Vector3(0,2,-L)});
+ camPos.set(0,1.7,6);camLook.set(0,1.7,-L);
+ S._overview={pos:new THREE.Vector3(0,1.75,2.6),look:new THREE.Vector3(0,1.6,-L)};
+ return g;
+}
+function framePose(f){
+ if(f.pos)return f;
+ var vf=camera.fov*Math.PI/360,tv=Math.tan(vf),th=tv*camera.aspect,portrait=camera.aspect<1;
+ var hh=f.h*(portrait?1.9:1.15);
+ var d=Math.max(hh/(2*tv),f.w*1.08/(2*th),2.2);d=Math.min(d,f.W-.4);
+ var visH=2*d*tv,ly=1.65-(portrait?.16*visH:0);
+ return {pos:new THREE.Vector3(f.side*(f.W/2-d),1.6,f.z),look:new THREE.Vector3(f.side*(f.W/2),ly+(1.6-1.65),f.z)};
+}
+
+/* ---------------- 장면 이동 ---------------- */
+function show(key,silent){
+ if(busy)return;busy=true;closePanel();$("elev").hidden=true;
+ var S=SP[key];setAccent(S.c);
+ $("fadeN").textContent=key==="noin"?"기획전":S.n;$("fadeT").textContent=S.name;
+ $("fade").classList.remove("clear");
+ setTimeout(function(){
+  if(group){scene.remove(group);dispose(group);}
+  group=buildRoom(key);scene.add(group);spaceKey=key;cur=-1;
+  glide(S._overview.pos,S._overview.look,1.6);
+  $("where").textContent=(key==="noin"?"기획전":S.n)+" · "+S.name;
+  $("hud").classList.remove("off");updCount();
+  try{history.replaceState(null,"",key==="lobby"?"#lobby":"#"+key);}catch(e){}
+  setTimeout(function(){$("fade").classList.add("clear");busy=false;},250);
+ },silent?0:650);
+}
+function goFrame(i){
+ if(busy||!frames.length)return;
+ if(i<-1)i=frames.length-1;if(i>=frames.length)i=-1;cur=i;updCount();
+ if(i===-1){var o=SP[spaceKey]._overview;glide(o.pos,o.look,1.2);closePanel();return;}
+ var f=frames[i],p=framePose(f);glide(p.pos,p.look,1.2,function(){openPanel(f.it);});
+ closePanel();
+}
+function updCount(){$("count").textContent=cur<0?"입구":(cur+1)+" / "+frames.length;}
+
+/* ---------------- 패널 ---------------- */
+function openPanel(it){
+ $("pm").textContent=it.m||"";$("pt").textContent=it.t;
+ $("pn").textContent=it.n||"";$("pn").hidden=!it.n;
+ var ul=$("pl");ul.innerHTML="";(it.l||[]).forEach(function(s){var li=document.createElement("li");li.textContent=s;ul.appendChild(li);});ul.hidden=!(it.l&&it.l.length);
+ var pa=$("pa");pa.innerHTML="";
+ function btn(label,fn){var b=document.createElement("button");b.textContent=label;b.onclick=fn;pa.appendChild(b);}
+ function lnk(label,href,ext){var a=document.createElement("a");a.textContent=label;a.href=href;if(ext){a.target="_blank";a.rel="noopener";}pa.appendChild(a);}
+ if(it.go)btn(it.goL||"들어가기",function(){show(it.go);});
+ if(it.elev)btn("층 고르기",openElev);
+ if(it.href)lnk(it.hrefL||"보기",it.href);
+ if(it.ext)lnk(it.ext[0]+"에서 보기 ↗",it.ext[1],1);
+ var S=SP[spaceKey];
+ if(S.page&&!it.go&&!it.href){lnk(it.sign?"이 층 전체 보기":"자세히 보기",S.page+(it.sign||spaceKey==="noin"?"":"#"+encodeURIComponent(it.t)));}
+ if(it.sign&&spaceKey!=="lobby"){var k=ORDER.indexOf(spaceKey);if(k<ORDER.length-1)btn("위층으로 ↑",function(){show(ORDER[k+1]);});}
+ $("panel").classList.remove("hide");
+}
+function closePanel(){$("panel").classList.add("hide");}
+$("px").onclick=closePanel;
+
+/* ---------------- 엘리베이터 ---------------- */
+function openElev(){
+ var L=$("elevList");L.innerHTML="";
+ ["f6","f5","f4","f3","f2","noin","lobby"].forEach(function(k){var S=SP[k],b=document.createElement("button");b.className="fl";b.style.setProperty("--c",S.c);
+  if(k===spaceKey)b.setAttribute("aria-current","true");
+  b.innerHTML="<b></b><span><span></span><small></small></span>";b.querySelector("b").textContent=k==="noin"?"SP":S.n;
+  b.querySelector("span span").textContent=k==="noin"?"기획전 『노인의 시대』":S.name;
+  b.querySelector("small").textContent=k==="lobby"?"감독실 · 안내 데스크":k==="noin"?"올드만 · 카니발 · 신곡":S.items.map(function(x){return x.t}).slice(0,3).join(" · ");
+  b.onclick=function(){if(k===spaceKey){$("elev").hidden=true;return;}show(k);};L.appendChild(b);});
+ $("elev").hidden=false;
+}
+$("elevBtn").onclick=openElev;$("elevClose").onclick=function(){$("elev").hidden=true;};
+$("elev").addEventListener("click",function(e){if(e.target===$("elev"))$("elev").hidden=true;});
+$("lobbyBtn").onclick=function(){if(spaceKey!=="lobby")show("lobby");else goFrame(-1);};
+$("prev").onclick=function(){goFrame(cur-1);};$("next").onclick=function(){goFrame(cur+1);};
+
+/* ---------------- 입력 ---------------- */
+var ray=new THREE.Raycaster(),ptr=new THREE.Vector2(),down=null;
+canvas.addEventListener("pointerdown",function(e){down={x:e.clientX,y:e.clientY,t:Date.now()};});
+canvas.addEventListener("pointermove",function(e){
+ look.tx=(e.clientX/innerWidth-.5)*-.5;look.ty=(e.clientY/innerHeight-.5)*-.25;
+ if(e.pointerType==="mouse"){ptr.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(ptr,camera);canvas.style.cursor=ray.intersectObjects(clickables).length?"pointer":"grab";}
+});
+canvas.addEventListener("pointerup",function(e){
+ if(!down)return;var dx=e.clientX-down.x,dy=e.clientY-down.y,dt=Date.now()-down.t;down=null;
+ if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)&&dt<700&&spaceKey){goFrame(cur+(dx<0?1:-1));return;}
+ if(Math.abs(dx)>8||Math.abs(dy)>8)return;
+ ptr.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);ray.setFromCamera(ptr,camera);
+ var hit=ray.intersectObjects(clickables)[0];if(!hit)return;
+ if(hit.object.userData.door){enter();return;}
+ var i=hit.object.userData.idx;if(i==null)return;
+ if(i===cur)openPanel(frames[i].it);else goFrame(i);
+});
+addEventListener("keydown",function(e){
+ if(!spaceKey){if(e.key==="Enter")enter();return;}
+ if(e.key==="ArrowRight")goFrame(cur+1);else if(e.key==="ArrowLeft")goFrame(cur-1);
+ else if(e.key==="Escape"){if(!$("elev").hidden)$("elev").hidden=true;else closePanel();}
+});
+
+/* ---------------- 입장 ---------------- */
+var entered=false;
+function enter(){if(entered)return;entered=true;$("gate").classList.add("gone");
+ glide(new THREE.Vector3(0,1.1,1.2),new THREE.Vector3(0,1.05,-4),1.6,function(){show("lobby");});}
+$("enter").onclick=enter;
+
+/* ---------------- 루프 ---------------- */
+var clock=new THREE.Clock();
+function loop(){
+ var dt=Math.min(clock.getDelta(),.05);
+ if(tw){var tt=(performance.now()-tw.s)/tw.d,k=ease(Math.min(tt,1));camPos.lerpVectors(tw.p0,tw.p1,k);camLook.lerpVectors(tw.l0,tw.l1,k);if(tt>=1){var cb=tw.cb;tw=null;if(cb)cb();}}
+ look.x+=(look.tx-look.x)*.05;look.y+=(look.ty-look.y)*.05;
+ camera.position.copy(camPos);
+ var dir=camLook.clone().sub(camPos),len=dir.length();
+ var yaw=Math.atan2(dir.x,dir.z)+look.x,pitch=Math.asin(dir.y/len)+look.y;
+ camera.lookAt(camPos.x+Math.sin(yaw)*Math.cos(pitch)*len,camPos.y+Math.sin(pitch)*len,camPos.z+Math.cos(yaw)*Math.cos(pitch)*len);
+ renderer.render(scene,camera);requestAnimationFrame(loop);
+}
+
+/* ---------------- 시작 ---------------- */
+var fontsReady=document.fonts&&document.fonts.load?Promise.all([document.fonts.load('800 80px "Nanum Myeongjo"'),document.fonts.load('400 30px "IBM Plex Sans KR"'),document.fonts.load('500 30px "IBM Plex Mono"')]).catch(function(){}):Promise.resolve();
+var timeout=new Promise(function(r){setTimeout(r,2500);});
+Promise.race([fontsReady,timeout]).then(function(){
+ var h=(location.hash||"").slice(1);
+ if(SP[h]){entered=true;$("gate").classList.add("gone");loop();show(h,true);return;}
+ group=buildExterior();scene.add(group);loop();
+ setTimeout(function(){$("fade").classList.add("clear");},100);
+});
+})();
+</script>
 </body>
 </html>
