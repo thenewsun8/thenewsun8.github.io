@@ -158,7 +158,10 @@ var SP = {
   {t:"엘리베이터",m:"2F – 6F",card:["ELEVATOR","2F 영화 · 3F AI 영화","4F 무대 · 5F 소설 · 6F 연구"],a:3/4,
    n:"층마다 색 하나. 위층으로 올라갈수록 영화의 원작과 방법에 가까워집니다.",l:[],elev:1},
   {t:"감독실",m:"Director · 안상욱 Ahn Sangwook",card:["DIRECTOR","안상욱","AHN SANG-WOOK"],a:3/4,
-   n:"소설을 쓰고, 그 소설을 영화로 옮깁니다. 영화 각색 연구로 박사학위를 받았습니다.",l:["원작 스튜디오 뉴선스토리 대표","『영화 각색, 10가지 스타일』 저자"],href:"lobby.html#director",hrefL:"감독실 보기"},
+   n:"소설을 쓰고, 그 소설을 영화로 옮깁니다. 영화 각색 연구로 박사학위를 받았습니다.",l:["원작 스튜디오 뉴선스토리 대표","저서 『신혼록』 · 『인간전』 · 『영화 각색, 10가지 스타일』"],href:"lobby.html#director",hrefL:"감독실 보기"},
+  {t:"저서",m:"Books · 소설 2 · 이론서 1",img:"cover_ingan.jpg",a:380/547,
+   n:"소설을 쓰고, 그 소설을 영화로 옮깁니다. 안상욱의 책 세 권.",l:["『신혼록』 장편소설 · 2023","『인간전』 장편소설 · 「인간 4부작」 · 2023","『영화 각색, 10가지 스타일』 이론서 · 2020"],
+   links:[["신혼록 — 교보문고 ↗","https://ebook-product.kyobobook.co.kr/dig/epd/ebook/480D231155040"],["인간전 — 교보문고 ↗","https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000005458248"],["영화 각색 — 교보문고 ↗","https://product.kyobobook.co.kr/detail/S000001675146"]],href:"lobby.html#books",hrefL:"저서 보기"},
   {t:"안내 데스크",m:"Press Room · 프레스킷 · 연락처",card:["PRESS","안내 데스크","asam8@naver.com"],a:3/4,
    n:"프레스킷, 작품 정보, 연락처를 안내합니다.",l:["asam8@naver.com"],href:"press.html",hrefL:"프레스룸으로"}
  ]},
@@ -402,6 +405,7 @@ function openPanel(it){
  if(it.elev)btn("층 고르기",openElev);
  if(it.href)lnk(it.hrefL||"보기",it.href);
  if(it.ext)lnk(it.ext[0]+"에서 보기 ↗",it.ext[1],1);
+ (it.links||[]).forEach(function(x){lnk(x[0],x[1],1);});
  var S=SP[spaceKey];
  if(S.page&&!it.go&&!it.href){lnk(it.sign?"이 층 전체 보기":"자세히 보기",S.page+(it.sign||spaceKey==="noin"?"":"#"+encodeURIComponent(it.t)));}
  if(it.sign&&spaceKey!=="lobby"){var k=ORDER.indexOf(spaceKey);if(k<ORDER.length-1)btn("위층으로 ↑",function(){show(ORDER[k+1]);});}
