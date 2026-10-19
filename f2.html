@@ -16,10 +16,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="top"><div class="w"><a class="brand" href="lobby.html"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="뉴선스토리 마크">
-<circle cx="50" cy="50" r="46" fill="none" stroke="#C9A24B" stroke-width="5"/>
-<g fill="#C9A24B"><ellipse cx="50.0" cy="20.0" rx="7" ry="11" transform="rotate(0 50.0 20.0)"/><ellipse cx="78.5" cy="40.7" rx="7" ry="11" transform="rotate(72 78.5 40.7)"/><ellipse cx="67.6" cy="74.3" rx="7" ry="11" transform="rotate(144 67.6 74.3)"/><ellipse cx="32.4" cy="74.3" rx="7" ry="11" transform="rotate(216 32.4 74.3)"/><ellipse cx="21.5" cy="40.7" rx="7" ry="11" transform="rotate(288 21.5 40.7)"/></g>
-<circle cx="50" cy="50" r="19" fill="#B8742E"/></svg><span>NEWSUNSTORY</span></a><nav class="menu" aria-label="전시관 메뉴"><a href="index.html">3D 전시관</a><a href="lobby.html">로비</a><a href="noin.html">기획전</a><a href="lobby.html#floors">층 안내</a><a href="lobby.html#director">감독실</a><a href="lobby.html#books">저서</a><a href="press.html">프레스룸</a></nav></div></header>
+<header class="top"><div class="w"><a class="brand" href="lobby.html"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="뉴선스토리"><circle cx="50" cy="50" r="46" fill="none" stroke="#C9A227" stroke-width="1.6"/><g fill="#C9A227"><path transform="rotate(0 50 50) translate(50 13.600000000000001)" d="M0 -6.8 Q6.6 0 0 6.8 Q-6.6 0 0 -6.8Z"/><path transform="rotate(72 50 50) translate(50 13.600000000000001)" d="M0 -6.8 Q6.6 0 0 6.8 Q-6.6 0 0 -6.8Z"/><path transform="rotate(144 50 50) translate(50 13.600000000000001)" d="M0 -6.8 Q6.6 0 0 6.8 Q-6.6 0 0 -6.8Z"/><path transform="rotate(216 50 50) translate(50 13.600000000000001)" d="M0 -6.8 Q6.6 0 0 6.8 Q-6.6 0 0 -6.8Z"/><path transform="rotate(288 50 50) translate(50 13.600000000000001)" d="M0 -6.8 Q6.6 0 0 6.8 Q-6.6 0 0 -6.8Z"/></g><circle cx="50" cy="50" r="27.5" fill="#D4A032"/></svg><span>NEWSUNSTORY</span></a><nav class="menu" aria-label="전시관 메뉴"><a href="index.html">3D 전시관</a><a href="lobby.html">로비</a><a href="noin.html">기획전</a><a href="lobby.html#floors">층 안내</a><a href="lobby.html#director">감독실</a><a href="lobby.html#books">저서</a><a href="press.html">프레스룸</a></nav></div></header>
 <main>
 <section class="hero" style="border-top:0;--accent:#7FA8D6"><div class="w" style="padding-block:56px 40px">
 <div class="t"><div class="eyebrow" style="color:#7FA8D6">2F · FILMS</div><h1 style="font-size:clamp(44px,7vw,80px)">영화</h1><p class="lead">실사 단편. 〈구인〉은 40여 개 국제영화제에 선정·수상했습니다.</p></div></div></section>
@@ -30,7 +27,25 @@
 <footer><div class="w">
 <div style="display:flex;flex-direction:column;gap:4px"><div class="eyebrow">Contact</div><div class="mail">asam8@naver.com</div></div>
 <a class="btn g" href="press.html">프레스킷 →</a>
-<div class="cap">© 2026 NewSunStory Co.,Ltd. · (주)뉴선스토리</div>
+<div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start"><img src="img/lockup.png" alt="(주)뉴선스토리 NEW SUN STORY CO., LTD." width="140" height="156" loading="lazy"><div class="cap">© 2026 NewSunStory Co.,Ltd. · (주)뉴선스토리</div></div>
 </div></footer>
+<div id="swipehint" aria-hidden="true"></div>
+<script>
+(function(){
+var SEQ=[["lobby.html","1F 로비"],["noin.html","기획전"],["f2.html","2F 영화"],["f3.html","3F AI 영화"],["f4.html","4F 무대"],["f5.html","5F 소설"],["f6.html","6F 연구"],["press.html","프레스룸"]];
+var here=location.pathname.split("/").pop()||"lobby.html",i=-1;SEQ.forEach(function(x,k){if(x[0]===here)i=k;});if(i<0)return;
+var d=null;try{d=sessionStorage.getItem("nss-dir");sessionStorage.removeItem("nss-dir");}catch(e){}
+if(d&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.body.classList.add("in-"+d);
+function go(k,dir){if(k<0||k>=SEQ.length)return;try{sessionStorage.setItem("nss-dir",dir);}catch(e){}document.body.classList.add("out-"+dir);setTimeout(function(){location.href=SEQ[k][0];},180);}
+var sx=0,sy=0,st=0,ok=false;
+addEventListener("touchstart",function(e){if(e.touches.length!==1){ok=false;return;}var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
+ var el=e.target;ok=true;while(el&&el!==document.body){if(el.scrollWidth>el.clientWidth+4&&getComputedStyle(el).overflowX!=="visible"){ok=false;break;}el=el.parentElement;}},{passive:true});
+addEventListener("touchend",function(e){if(!ok)return;var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+ if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.8&&Date.now()-st<700){if(dx<0)go(i+1,"l");else go(i-1,"r");}},{passive:true});
+if(matchMedia("(pointer:coarse)").matches){var h=document.getElementById("swipehint");
+ h.innerHTML=(i>0?"‹ "+SEQ[i-1][1]:"")+"<b>밀어서 넘기기</b>"+(i<SEQ.length-1?SEQ[i+1][1]+" ›":"");
+ h.classList.add("show");setTimeout(function(){h.classList.remove("show");},3200);}
+})();
+</script>
 </body>
 </html>
