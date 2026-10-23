@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="무지개보석"><meta name="theme-color" content="#1d1430">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%;color-scheme:dark}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head><body>
+<title>쿵쾅의 무지개 보석</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+/* 한 화면 게임: 위 얇은 상태줄 + 세로 탑 한 층. 시작·엔딩은 무대 위에 겹치는 판 */
+:root{
+  --ink:#1d1430; --panel:#2d2148; --cream:#fff6e5; --muted:#c9bde6; --gold:#ffc93a; --coin:#ffdb5c;
+  --display:"Jua","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--ink);color:var(--cream);font-family:var(--display);overflow:hidden;box-sizing:border-box;
+  padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.app{height:100%;display:flex;flex-direction:column;align-items:center;gap:6px;padding-block:6px;box-sizing:border-box;max-width:620px;margin:0 auto}
+.bar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:34px}
+h1{margin:0;font-weight:400;font-size:clamp(16px,4.8vw,21px);color:var(--gold);white-space:nowrap}
+.hud{display:flex;gap:5px;align-items:center;font-size:15px}
+.pill{white-space:nowrap;padding:4px 10px;border-radius:999px;background:var(--panel);color:var(--muted)}
+.hbtn{white-space:nowrap;font-family:var(--display);font-size:14px;border:0;border-radius:999px;padding:5px 11px;background:var(--panel);color:var(--cream);cursor:pointer}
+.stage{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;position:relative}
+canvas{display:block;touch-action:none;border-radius:18px;box-shadow:0 14px 44px rgba(0,0,0,.55)}
+.sheet{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;box-sizing:border-box;text-align:center;border-radius:18px}
+.sheet[hidden]{display:none}
+#intro{background:linear-gradient(to bottom,rgba(29,20,48,.2),rgba(29,20,48,.86) 55%)}
+#end{background:rgba(29,20,48,.55)}
+#intro h2{font-size:28px}
+.sheet h2{margin:0;font-weight:400;font-size:34px;color:var(--gold);text-wrap:balance;text-shadow:0 3px 0 rgba(0,0,0,.35)}
+.sheet p{margin:0;font-size:17px;color:var(--muted);line-height:1.5;max-width:28ch}
+.rb{font-size:22px;letter-spacing:.06em}
+.rb i{font-style:normal}
+.money{font-size:40px;color:var(--coin);line-height:1.1}
+.go{font-family:var(--display);font-size:23px;border:0;border-radius:16px;padding:13px 30px;background:var(--gold);color:var(--ink);cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.go:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+</style>
+
+<div class="app">
+  <div class="bar"><h1>쿵쾅의 무지개 보석</h1><div class="hud" id="hud"></div></div>
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="탑 한 층. 상자를 누르면 쿵쾅이 달려가 부숩니다."></canvas>
+    <div class="sheet" id="intro">
+      <h2>무지개 보석 일곱 개를 찾아라!</h2>
+      <p class="rb"><i style="color:#ff4d4d">빨</i> <i style="color:#ff9a2e">주</i> <i style="color:#ffe14d">노</i> <i style="color:#3ddc84">초</i> <i style="color:#4d93ff">파</i> <i style="color:#6b6bff">남</i> <i style="color:#b36bff">보</i></p>
+      <p>상자를 톡! 누르면 쿵쾅이 쾅! 부숴요. 동전, 금괴, 돈다발이 쏟아지고, 어딘가에 보석이 숨어 있어요.</p>
+      <button type="button" class="go" id="goBtn">쿵쾅, 출발!</button>
+    </div>
+    <div class="sheet" id="end" hidden>
+      <h2>무지개 완성!</h2>
+      <p class="rb"><i style="color:#ff4d4d">빨강</i> <i style="color:#ff9a2e">주황</i> <i style="color:#ffe14d">노랑</i> <i style="color:#3ddc84">초록</i> <i style="color:#4d93ff">파랑</i> <i style="color:#6b6bff">남색</i> <i style="color:#b36bff">보라</i></p>
+      <p>오늘 쿵쾅이 모은 돈</p>
+      <div class="money" id="endMoney">0원</div>
+      <p id="endText"></p>
+      <button type="button" class="go" id="againBtn">다시 탑 오르기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const cv=$("cv"),ctx=cv.getContext("2d");
+const W=500,H=860,GROUND=790,BS=62;
+const SHELVES=[300,470,640];
+const COLS=[62,156,250,344,438];
+const GEMS=[{k:"빨강",en:"Red",c:"#ff4d4d"},{k:"주황",en:"Orange",c:"#ff9a2e"},{k:"노랑",en:"Yellow",c:"#ffe14d"},{k:"초록",en:"Green",c:"#3ddc84"},{k:"파랑",en:"Blue",c:"#4d93ff"},{k:"남색",en:"Indigo",c:"#6b6bff"},{k:"보라",en:"Violet",c:"#b36bff"}];
+const BG=[["#2a1a12","#4a2e1c"],["#2b2033","#4b3550"],["#1e2a4a","#3a4a78"],["#2a3f7a","#4a6ab0"],["#3a63b8","#6a9ae0"],["#5b8de0","#9cc6f5"],["#7fb6f2","#cfe8ff"]];
+const rnd=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rnd(a,b+1));
+let T=0,last=performance.now(),dt=1,sound=true,playing=false;
+let floor=0,blocks=[],loot=[],parts=[],texts=[],zombies=[],gemsGot=[],money=0,shownMoney=0,combo=0,comboT=0,superG=0,shake=0,smashed=0,gemFound=false,trans=0,ended=false,dancing=0;
+let hero={x:250,y:GROUND,state:"idle",t:0,from:null,to:null,target:null,face:1,dizzy:0,queue:null};
+const SUPER_MAX=18;
+
+/* 소리 */
+let ac=null,master=null;
+function A(){if(!sound)return null;try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=.85;master.connect(ac.destination)}if(ac.state==="suspended")ac.resume()}catch(_){ac=null}return ac}
+function tone(f1,f2,d,type,vol,at){const a=A();if(!a)return;const t=a.currentTime+(at||0),o=a.createOscillator(),g=a.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(Math.max(20,f2),t+d);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol||.2,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d+.03);o.connect(g).connect(master);o.start(t);o.stop(t+d+.06)}
+function noise(d,f,vol,at,q){const a=A();if(!a)return;const n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<n;i++)c[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain(),t=a.currentTime+(at||0);fl.type="bandpass";fl.frequency.value=f;fl.Q.value=q||.8;g.gain.value=vol||.3;s.buffer=b;s.connect(fl).connect(g).connect(master);s.start(t)}
+let coinCool=0;
+const S={
+  punch(){noise(.12,500,.35);tone(120,60,.12,"sine",.35)},
+  crack(){noise(.08,1800,.2)},
+  smash(k){noise(.35,700,.45);tone(90,40,.25,"sine",.45);tone(400+k*40,200,.1,"square",.05)},
+  coin(){if(coinCool>0)return;coinCool=3;const f=rnd(1900,2300);tone(f,f,.06,"square",.05);tone(f*1.33,f*1.33,.12,"square",.05,.05)},
+  gold(){[1318,1760,2637].forEach((f,i)=>tone(f,f,.18,"triangle",.12,i*.05))},
+  cash(){noise(.06,4000,.25);tone(1500,1500,.08,"square",.06,.07);tone(2000,2000,.15,"square",.06,.12)},
+  gem(){[523,659,784,1047,1319,1568,2093].forEach((f,i)=>tone(f,f,.3,"triangle",.11,i*.07));noise(1.2,6000,.12,.1,2)},
+  boom(){noise(.8,250,.6);tone(70,30,.6,"sine",.55)},
+  pop(){[880,1175,1568].forEach((f,i)=>tone(f,f,.08,"triangle",.12,i*.04))},
+  dizzy(){tone(700,300,.4,"sine",.12)},
+  superS(){tone(80,600,.6,"sawtooth",.12);setTimeout(()=>S.boom(),550)},
+  up(){[392,523,659,784].forEach((f,i)=>tone(f,f,.15,"square",.07,i*.08))},
+  fanfare(){[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,f,.22,"square",.08,i*.13))}
+};
+function speak(t,lang){if(!sound||!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang=lang||"en-US";u.pitch=1.25;u.rate=.95;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(_){}}
+
+/* 층 만들기 */
+function buildFloor(f){
+  blocks=[];loot=[];zombies=[];gemFound=false;
+  const slots=[];SHELVES.forEach((y,r)=>COLS.forEach((x,c)=>slots.push({x,y,r,c})));
+  slots.sort(()=>Math.random()-.5);
+  const n=Math.min(15,9+f);
+  for(let i=0;i<n;i++){const s=slots[i];let type="crate";const p=Math.random();
+    if(f>=2&&p<.12+f*.03)type="brick";else if(p<.45)type="rock";
+    blocks.push({x:s.x,y:s.y-BS/2,shelf:s.y,c:s.c,type,hp:type==="brick"?3:type==="rock"?2:1,max:type==="brick"?3:type==="rock"?2:1,gem:false,shk:0,gone:false})}
+  const tn=f>=1?Math.min(3,1+Math.floor(f/3)):0;for(let i=0;i<tn;i++){const b=blocks[i];b.type="tnt";b.hp=b.max=1}
+  const cand=blocks.filter(b=>b.type!=="tnt");const g=f>=3?cand.filter(b=>b.type!=="crate"):cand;(g.length?g:cand)[ri(0,(g.length?g:cand).length-1)].gem=true;
+  const zn=f>=1?Math.min(3,Math.ceil(f/2)):0;for(let i=0;i<zn;i++){const sy=[...SHELVES,GROUND][ri(0,3)];zombies.push({x:rnd(40,460),y:sy,vx:(Math.random()<.5?-1:1)*rnd(.4,.7),ph:Math.random()*6,s:.8})}
+  hero.x=250;hero.y=GROUND;hero.state="idle";hero.queue=null;hero.dizzy=0;
+}
+function startGame(){floor=0;gemsGot=[];money=0;shownMoney=0;combo=0;superG=0;smashed=0;ended=false;dancing=0;parts=[];texts=[];buildFloor(0);playing=true;
+  $("intro").hidden=true;$("end").hidden=true;A();say(W/2,H*.45,"1층!","#ffc93a",1);hud()}
+function hud(){
+  $("hud").innerHTML=(playing?`<span class="pill">${floor+1}층</span>`:"")+`<button type="button" class="hbtn" id="snd">${sound?"소리":"무음"}</button>`;
+  $("snd").onclick=()=>{sound=!sound;hud()};
+}
+function say(x,y,t,c,big){texts.push({x,y,t,c:c||"#fff",l:70,big})}
+
+/* 쿵쾅 움직이기 */
+function standFor(b){const left=b.c===0?false:b.c===4?true:hero.x<b.x;return {x:b.x+(left?-56:56),y:b.shelf,face:left?1:-1}}
+function goTo(b){
+  if(hero.dizzy>0){say(hero.x,hero.y-110,"어질어질…","#fff");return}
+  if(hero.state!=="idle"){hero.queue=b;return}
+  const s=standFor(b);hero.from={x:hero.x,y:hero.y};hero.to=s;hero.target=b;hero.face=s.face;
+  const d=Math.hypot(s.x-hero.x,s.y-hero.y);if(d<8){hero.state="punch";hero.t=0;return}
+  hero.state="jump";hero.t=0;hero.dur=Math.max(12,Math.min(26,d/14));
+}
+function heroStep(){
+  hero.dizzy-=dt;
+  if(hero.state==="jump"){hero.t+=dt;const k=Math.min(1,hero.t/hero.dur);const h=Math.max(50,Math.abs(hero.to.y-hero.from.y)*.5+60);
+    hero.x=hero.from.x+(hero.to.x-hero.from.x)*k;hero.y=hero.from.y+(hero.to.y-hero.from.y)*k-Math.sin(k*Math.PI)*h;
+    if(k>=1){hero.state=hero.target?"punch":"idle";hero.t=0;if(!hero.target){shake=8;S.punch();burst(hero.x,hero.y,10,["#c9b79a","#8a7f72"],4)}}}
+  else if(hero.state==="punch"){hero.t+=dt;if(hero.t>=5&&!hero.hitDone){hero.hitDone=true;hit(hero.target,1,true)}if(hero.t>=11){hero.state="idle";hero.hitDone=false;hero.target=null;
+      if(hero.queue&&!hero.queue.gone){const q=hero.queue;hero.queue=null;goTo(q)}else hero.queue=null}}
+  else if(hero.state==="super"){hero.t+=dt;const k=Math.min(1,hero.t/40);hero.x+= (250-hero.x)*.15;hero.y=GROUND-Math.sin(k*Math.PI)*260;
+    if(k>=1){hero.state="idle";hero.y=GROUND;superBoom()}}
+}
+
+/* 부수기 */
+function hit(b,dmg,byHero){
+  if(!b||b.gone)return;b.hp-=dmg;b.shk=8;shake=Math.max(shake,5);
+  if(byHero){S.punch();superG=Math.min(SUPER_MAX,superG+1);if(comboT>0)combo++;else combo=1;comboT=100;if(combo>=3)say(b.x,b.y-60,`콤보 ${combo}!`,combo>=10?"#ff5ad1":combo>=5?"#ffc93a":"#fff",combo>=5)}
+  burst(b.x,b.y,6,b.type==="crate"?["#c98a4a","#8a5a2a"]:b.type==="brick"?["#c9503a","#8a3020"]:["#a39888","#6e655b"],4);
+  if(b.hp>0){S.crack();return}
+  b.gone=true;smashed++;S.smash(Math.min(combo,10));shake=Math.max(shake,10);
+  burst(b.x,b.y,22,b.type==="crate"?["#c98a4a","#e0b07a","#8a5a2a"]:b.type==="brick"?["#c9503a","#e07a5a"]:b.type==="tnt"?["#ff5a3a","#ffc93a","#fff"]:["#a39888","#d0c6b8"],7);
+  const mult=combo>=10?3:combo>=5?2:1;
+  const nc=ri(3,6)*mult;for(let i=0;i<nc;i++)spawnLoot(b.x,b.y,"coin");
+  const r=Math.random();if(r<.28)spawnLoot(b.x,b.y,"gold");if(r<.1||(b.type==="brick"&&r<.35))spawnLoot(b.x,b.y,"cash");
+  if(b.gem)spawnGem(b);
+  if(b.type==="tnt")tnt(b);
+}
+function tnt(b){S.boom();shake=22;say(b.x,b.y-40,"쾅!!","#ff5a3a",1);
+  for(let i=0;i<40;i++){const a=Math.random()*7,v=rnd(3,11);parts.push({x:b.x,y:b.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:rnd(25,50),m:50,c:["#ff5a3a","#ffc93a","#fff","#555"][i%4],r:rnd(4,9)})}
+  setTimeout(()=>{for(const o of blocks)if(!o.gone&&Math.hypot(o.x-b.x,o.y-b.y)<175)hit(o,2,false);for(const z of zombies)if(!z.dead&&Math.hypot(z.x-b.x,z.y-30-b.y)<185)popZombie(z)},120)}
+function spawnLoot(x,y,type){const a=rnd(-Math.PI*.9,-Math.PI*.1),v=rnd(4,9);loot.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,type,t:0,spin:Math.random()*6,val:type==="coin"?100:type==="gold"?10000:50000})}
+function spawnGem(b){gemFound=true;const g=GEMS[floor];loot.push({x:b.x,y:b.y,vx:0,vy:-7,type:"gem",t:0,spin:0,val:0});
+  S.gem();speak(g.en+"!");say(W/2,H*.42,`${g.k} 보석 찾았다!`,g.c,1);dancing=60}
+function superBoom(){S.boom();shake=30;say(W/2,H*.4,"슈퍼 쿵쾅!!","#ff5ad1",1);speak("Super smash!");
+  for(let i=0;i<60;i++){const a=Math.random()*7,v=rnd(4,13);parts.push({x:250,y:GROUND,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,l:rnd(30,60),m:60,c:["#ff5ad1","#ffc93a","#fff","#4d93ff"][i%4],r:rnd(4,9)})}
+  for(const b of blocks)if(!b.gone)hit(b,2,false);for(const z of zombies)popZombie(z)}
+function popZombie(z){if(z.dead)return;z.dead=true;S.pop();burst(z.x,z.y-30,16,["#ffc93a","#fff","#7cc46a"],6);for(let i=0;i<4;i++)spawnLoot(z.x,z.y-30,"coin");say(z.x,z.y-70,"펑!","#fff")}
+function burst(x,y,n,cols,sp){for(let i=0;i<n;i++){const a=Math.random()*7,v=rnd(1,sp||6);parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1.5,l:rnd(25,50),m:50,c:cols[i%cols.length],r:rnd(3,7),sq:true})}}
+
+/* 보물 날아가기 */
+const VAULT={x:58,y:96};
+function slotPos(i){return {x:150+i*46,y:46}}
+function lootStep(){
+  for(const l of loot){l.t+=dt;l.spin+=.2*dt;
+    if(l.type==="gem"){if(l.t<70){l.vy+=.18*dt;if(l.vy>0)l.vy*=.9;l.y+=l.vy*dt}else{const p=slotPos(floor);l.x+=(p.x-l.x)*.12*dt;l.y+=(p.y-l.y)*.12*dt;if(Math.hypot(p.x-l.x,p.y-l.y)<4){l.done=true;gemsGot.push(floor);burst(p.x,p.y,20,[GEMS[floor].c,"#fff"],5);gemArrived()}}continue}
+    if(l.t<34){l.vy+=.38*dt;l.x+=l.vx*dt;l.y+=l.vy*dt;const fl=[...SHELVES,GROUND].find(s=>l.y>s-6&&l.y<s+14&&l.vy>0);if(fl){l.y=fl-6;l.vy*=-.45;l.vx*=.7}}
+    else{const k=Math.min(.35,.06+(l.t-34)*.012);l.x+=(VAULT.x-l.x)*k*dt;l.y+=(VAULT.y-l.y)*k*dt;if(Math.hypot(VAULT.x-l.x,VAULT.y-l.y)<10){l.done=true;money+=l.val;l.type==="coin"?S.coin():l.type==="gold"?S.gold():S.cash()}}}
+  loot=loot.filter(l=>!l.done);
+}
+function gemArrived(){
+  if(gemsGot.length>=7){ended=true;playing=false;setTimeout(win,1800);S.fanfare();return}
+  say(W/2,H*.5,"위층 문이 열렸어요!","#fff",1);S.up();
+}
+function nextFloor(){if(trans>0)return;trans=60;S.up();setTimeout(()=>{floor++;buildFloor(floor);say(W/2,H*.45,`${floor+1}층!`,"#ffc93a",1);hud()},450)}
+function win(){$("endMoney").textContent=money.toLocaleString("ko-KR")+"원";$("endText").textContent=`상자 ${smashed}개를 부수고 무지개 보석 일곱 개를 다 모았어요!`;$("end").hidden=false;speak("Red, orange, yellow, green, blue, indigo, violet! Rainbow!");hud()}
+
+/* 좀비 */
+function zStep(){for(const z of zombies){if(z.dead)continue;z.x+=z.vx*dt;if(z.x<24||z.x>W-24)z.vx*=-1;
+  if(hero.dizzy<=0&&hero.state!=="super"&&Math.abs(z.x-hero.x)<34&&Math.abs(z.y-hero.y)<20){hero.dizzy=70;hero.state="idle";hero.target=null;hero.queue=null;S.dizzy();say(hero.x,hero.y-120,"좀비한테 부딪혔다! 톡 눌러서 펑!","#fff");z.vx*=-1;z.x+=z.vx*30;
+    const take=Math.min(money,500);if(take>0){money-=take;say(VAULT.x+70,VAULT.y+30,`-${take}원`,"#ff8a8a")}}}
+  zombies=zombies.filter(z=>!z.dead)}
+
+/* 그리기 */
+function lerpC(a,b,k){const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);const r=Math.round(((pa>>16)&255)*(1-k)+((pb>>16)&255)*k),g=Math.round(((pa>>8)&255)*(1-k)+((pb>>8)&255)*k),bl=Math.round((pa&255)*(1-k)+(pb&255)*k);return `rgb(${r},${g},${bl})`}
+function bg(){
+  const c=BG[Math.min(6,floor)];const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,c[0]);g.addColorStop(1,c[1]);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  // 벽돌 탑 벽
+  ctx.fillStyle="rgba(255,255,255,.05)";for(let y=130;y<GROUND;y+=34)for(let x=((y/34)%2)*30-30;x<W;x+=60)ctx.fillRect(x+2,y+2,56,30);
+  // 창문
+  ctx.fillStyle="rgba(255,240,180,.15)";ctx.beginPath();ctx.roundRect(206,150,88,100,44);ctx.fill();
+  if(floor>=5){ctx.fillStyle="rgba(255,255,255,.7)";[[80,180],[400,200]].forEach(([x,y])=>{ctx.beginPath();ctx.ellipse(x,y,40,14,0,0,7);ctx.ellipse(x+24,y-8,24,14,0,0,7);ctx.fill()})}
+  // 선반
+  for(const y of SHELVES){ctx.fillStyle="#7a4e2b";ctx.fillRect(0,y,W,14);ctx.fillStyle="#a06a3a";ctx.fillRect(0,y,W,4);ctx.fillStyle="rgba(0,0,0,.2)";ctx.fillRect(0,y+14,W,6)}
+  ctx.fillStyle="#5a3a22";ctx.fillRect(0,GROUND,W,H-GROUND);ctx.fillStyle="#7a4e2b";ctx.fillRect(0,GROUND,W,6);
+  // 위층 문 (보석 찾은 뒤)
+  if(gemFound&&gemsGot.includes(floor)&&!ended){const x=250,y=SHELVES[0]-4,pul=Math.sin(T*.15)*4;ctx.fillStyle="#ffc93a";ctx.beginPath();ctx.roundRect(x-48,y-150-pul,96,44+pul*2,22);ctx.fill();ctx.fillStyle="#1d1430";ctx.font="22px Jua, sans-serif";ctx.textAlign="center";ctx.fillText("▲ 위층으로",x,y-120)}
+}
+function topHud(){
+  ctx.fillStyle="rgba(20,12,36,.55)";ctx.beginPath();ctx.roundRect(10,12,W-20,110,18);ctx.fill();
+  ctx.fillStyle="#fff6e5";ctx.font="16px Jua, sans-serif";ctx.textAlign="left";ctx.fillText("무지개 보석",24,52);
+  GEMS.forEach((g,i)=>{const p=slotPos(i);const got=gemsGot.includes(i);
+    if(got){if(i===floor&&dancing>0)glow(p.x,p.y,30,g.c);gem(p.x,p.y,15,g.c)}else{ctx.strokeStyle=g.c;ctx.globalAlpha=.55;ctx.lineWidth=2.5;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(p.x,p.y,15,0,7);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1}
+    ctx.fillStyle=got?"#fff":"rgba(255,255,255,.55)";ctx.font="12px Jua, sans-serif";ctx.textAlign="center";ctx.fillText(g.k[0],p.x,p.y+32)});
+  // 금고
+  shownMoney+=(money-shownMoney)*.15;if(Math.abs(money-shownMoney)<1)shownMoney=money;
+  coinIcon(VAULT.x-30,VAULT.y,11,0);ctx.fillStyle="#ffdb5c";ctx.font="26px Jua, sans-serif";ctx.textAlign="left";ctx.fillText(Math.round(shownMoney).toLocaleString("ko-KR")+"원",VAULT.x-12,VAULT.y+9);
+  if(combo>=3&&comboT>0){ctx.textAlign="right";ctx.font="18px Jua, sans-serif";ctx.fillStyle=combo>=10?"#ff5ad1":combo>=5?"#ffc93a":"#fff";ctx.fillText(`콤보 ${combo}${combo>=10?" · 동전 ×3":combo>=5?" · 동전 ×2":""}`,W-24,VAULT.y+8)}
+}
+function superBtn(){
+  const x=W-62,y=GROUND+36,full=superG>=SUPER_MAX;
+  ctx.fillStyle="rgba(0,0,0,.35)";ctx.beginPath();ctx.roundRect(20,GROUND+26,W-120,20,10);ctx.fill();
+  const gg=ctx.createLinearGradient(20,0,W-100,0);gg.addColorStop(0,"#4d93ff");gg.addColorStop(1,"#ff5ad1");ctx.fillStyle=gg;ctx.beginPath();ctx.roundRect(20,GROUND+26,(W-120)*superG/SUPER_MAX,20,10);ctx.fill();
+  ctx.fillStyle="#fff";ctx.font="14px Jua, sans-serif";ctx.textAlign="left";ctx.fillText(full?"슈퍼 쿵쾅 준비 완료! 오른쪽 버튼!":"부술수록 슈퍼 쿵쾅이 차요",28,GROUND+41);
+  if(full)glow(x,y,48+Math.sin(T*.2)*6,"rgba(255,90,209,.7)");
+  ctx.fillStyle=full?"#ff5ad1":"#4a3a66";ctx.beginPath();ctx.arc(x,y,30,0,7);ctx.fill();ctx.fillStyle="#fff";ctx.font="15px Jua, sans-serif";ctx.textAlign="center";ctx.fillText("슈퍼",x,y-2);ctx.fillText("쿵쾅",x,y+15);
+}
+function glow(x,y,r,c){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,c);g.addColorStop(1,"rgba(0,0,0,0)");ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
+function gem(x,y,r,c){ctx.save();ctx.translate(x,y);ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*.9,-r*.35);ctx.lineTo(r*.6,r*.8);ctx.lineTo(-r*.6,r*.8);ctx.lineTo(-r*.9,-r*.35);ctx.closePath();ctx.fillStyle=c;ctx.fill();
+  ctx.fillStyle="rgba(255,255,255,.45)";ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*.9,-r*.35);ctx.lineTo(0,-r*.1);ctx.lineTo(-r*.9,-r*.35);ctx.closePath();ctx.fill();
+  ctx.fillStyle="rgba(0,0,0,.15)";ctx.beginPath();ctx.moveTo(0,-r*.1);ctx.lineTo(r*.6,r*.8);ctx.lineTo(-r*.6,r*.8);ctx.closePath();ctx.fill();
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-r*.35,-r*.45,r*.13,0,7);ctx.fill();ctx.restore()}
+function coinIcon(x,y,r,spin){const w=Math.abs(Math.cos(spin))*r+1.5;ctx.fillStyle="#e0a810";ctx.beginPath();ctx.ellipse(x,y,w,r,0,0,7);ctx.fill();ctx.fillStyle="#ffdb5c";ctx.beginPath();ctx.ellipse(x,y,w*.75,r*.75,0,0,7);ctx.fill()}
+function blockDraw(b){
+  ctx.save();ctx.translate(b.x+(b.shk>0?rnd(-3,3):0),b.y);const s=BS/2;
+  ctx.fillStyle="rgba(0,0,0,.25)";ctx.fillRect(-s+4,s-2,BS-4,6);
+  if(b.type==="crate"){ctx.fillStyle="#c98a4a";ctx.fillRect(-s,-s,BS,BS);ctx.strokeStyle="#8a5a2a";ctx.lineWidth=5;ctx.strokeRect(-s+3,-s+3,BS-6,BS-6);ctx.beginPath();ctx.moveTo(-s+4,-s+4);ctx.lineTo(s-4,s-4);ctx.moveTo(s-4,-s+4);ctx.lineTo(-s+4,s-4);ctx.stroke()}
+  else if(b.type==="rock"){ctx.fillStyle="#9a8f80";ctx.beginPath();ctx.roundRect(-s,-s,BS,BS,16);ctx.fill();ctx.fillStyle="#b4aa9a";ctx.beginPath();ctx.ellipse(-8,-10,14,9,0,0,7);ctx.fill()}
+  else if(b.type==="brick"){ctx.fillStyle="#b94a32";ctx.fillRect(-s,-s,BS,BS);ctx.strokeStyle="#e8c9a8";ctx.lineWidth=2;for(let r=0;r<4;r++){const y=-s+r*BS/4;ctx.beginPath();ctx.moveTo(-s,y);ctx.lineTo(s,y);ctx.stroke();for(let c=0;c<3;c++){const x=-s+(c+(r%2)*.5)*BS/2.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+BS/4);ctx.stroke()}}}
+  else{ctx.fillStyle="#e8402a";ctx.beginPath();ctx.roundRect(-s,-s,BS,BS,8);ctx.fill();ctx.fillStyle="#fff";ctx.font="22px Jua, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("쾅",0,2);ctx.textBaseline="alphabetic";
+    ctx.strokeStyle="#333";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,-s);ctx.quadraticCurveTo(8,-s-10,4,-s-16);ctx.stroke();if(Math.sin(T*.5)>0){ctx.fillStyle="#ffc93a";ctx.beginPath();ctx.arc(4,-s-17,4,0,7);ctx.fill()}}
+  // 금 간 자국
+  const dmg=b.max-b.hp;if(dmg>0){ctx.strokeStyle="rgba(30,20,10,.8)";ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(-6,-s+2);ctx.lineTo(2,-6);ctx.lineTo(-4,4);ctx.lineTo(6,s-4);if(dmg>1){ctx.moveTo(s-3,-8);ctx.lineTo(4,0);ctx.lineTo(10,12)}ctx.stroke()}
+  // 보석이 있으면 살짝 반짝 (힌트)
+  if(b.gem&&Math.sin(T*.07+b.x)>.93){ctx.fillStyle="rgba(255,255,255,.9)";star4(s-10,-s+10,6)}
+  ctx.restore();
+}
+function star4(x,y,r){ctx.beginPath();ctx.moveTo(x,y-r);ctx.lineTo(x+r*.3,y-r*.3);ctx.lineTo(x+r,y);ctx.lineTo(x+r*.3,y+r*.3);ctx.lineTo(x,y+r);ctx.lineTo(x-r*.3,y+r*.3);ctx.lineTo(x-r,y);ctx.lineTo(x-r*.3,y-r*.3);ctx.closePath();ctx.fill()}
+function zombieDraw(z){ctx.save();ctx.translate(z.x,z.y);ctx.scale(z.vx>0?z.s:-z.s,z.s);const w=Math.sin(T*.15+z.ph)*4;
+  ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(0,0,20,5,0,0,7);ctx.fill();
+  ctx.fillStyle="#4d5385";ctx.fillRect(-9,-24,8,24+w*.3);ctx.fillRect(2,-24,8,24-w*.3);
+  ctx.fillStyle="#8a7b67";ctx.fillRect(-13,-52,26,30);
+  ctx.strokeStyle="#7cc46a";ctx.lineWidth=7;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(8,-46);ctx.lineTo(26,-44+w);ctx.moveTo(4,-40);ctx.lineTo(24,-36-w);ctx.stroke();
+  ctx.fillStyle="#7cc46a";ctx.beginPath();ctx.arc(0,-66,15,0,7);ctx.fill();
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(5,-68,5,0,7);ctx.arc(-5,-67,3.6,0,7);ctx.fill();ctx.fillStyle="#231a3a";ctx.beginPath();ctx.arc(6,-67,2.4,0,7);ctx.arc(-4,-66,1.8,0,7);ctx.fill();
+  ctx.strokeStyle="#2f4a28";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-4,-57);ctx.lineTo(0,-59);ctx.lineTo(4,-57);ctx.lineTo(8,-59);ctx.stroke();ctx.restore()}
+function heroDraw(){
+  ctx.save();ctx.translate(hero.x,hero.y);const sc=.62;ctx.scale(sc*hero.face,sc);
+  const punch=hero.state==="punch"&&hero.t<9,air=hero.state==="jump"||hero.state==="super",dance=dancing>0?Math.sin(T*.5)*8:0;
+  ctx.rotate(dance*.01);
+  ctx.fillStyle="rgba(0,0,0,.28)";if(!air){ctx.beginPath();ctx.ellipse(0,0,56,10,0,0,7);ctx.fill()}
+  ctx.translate(0,-62);
+  ctx.fillStyle="#6e655b";ctx.fillRect(-34,26,24,36);ctx.fillRect(10,26,24,36);
+  // 뒷팔
+  ctx.fillStyle="#857a6d";ctx.beginPath();ctx.ellipse(-56,4+(air?-24:0)-dance,16,22,0,0,7);ctx.fill();
+  // 몸
+  ctx.fillStyle="#958a7c";ctx.beginPath();ctx.ellipse(0,0,54,50,0,0,7);ctx.fill();
+  ctx.fillStyle="#7d7266";ctx.beginPath();ctx.ellipse(-24,22,9,6,0,0,7);ctx.ellipse(28,26,7,5,0,0,7);ctx.fill();
+  ctx.fillStyle="#6fae55";ctx.beginPath();ctx.ellipse(0,-38,38,13,0,Math.PI,0);ctx.fill();ctx.beginPath();ctx.arc(-24,-38,9,0,7);ctx.arc(22,-40,10,0,7);ctx.fill();
+  // 얼굴: 웃는 쿵쾅
+  if(hero.dizzy>0){ctx.strokeStyle="#231a3a";ctx.lineWidth=3;[-16,16].forEach(x=>{ctx.beginPath();for(let a=0;a<12;a+=.5)ctx.lineTo(x+Math.cos(a+T*.3)*a*.6,-8+Math.sin(a+T*.3)*a*.6);ctx.stroke()});
+    for(let i=0;i<3;i++){const a=T*.1+i*2.1;ctx.fillStyle="#ffc93a";star4(Math.cos(a)*50,-66+Math.sin(a)*10,8)}}
+  else{ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-16,-8,10,0,7);ctx.arc(16,-8,10,0,7);ctx.fill();ctx.fillStyle="#231a3a";ctx.beginPath();ctx.arc(-13,-7,5,0,7);ctx.arc(19,-7,5,0,7);ctx.fill();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-11,-9,2,0,7);ctx.arc(21,-9,2,0,7);ctx.fill()}
+  ctx.strokeStyle="#3f3830";ctx.lineWidth=5;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(-26,-26);ctx.lineTo(-8,-24);ctx.moveTo(26,-26);ctx.lineTo(8,-24);ctx.stroke();
+  ctx.fillStyle="#5a2a2a";ctx.beginPath();ctx.arc(0,12,14,.1,Math.PI-.1);ctx.fill();ctx.fillStyle="#ff8a8a";ctx.beginPath();ctx.arc(0,20,6,0,Math.PI);ctx.fill();
+  ctx.fillStyle="rgba(255,120,120,.35)";ctx.beginPath();ctx.ellipse(-32,8,8,5,0,0,7);ctx.ellipse(32,8,8,5,0,0,7);ctx.fill();
+  // 앞팔(펀치)
+  ctx.fillStyle="#857a6d";const px=punch?82:56,py=punch?-2:4+(air?-24:0)+dance;ctx.beginPath();ctx.ellipse(px,py,punch?22:16,punch?18:22,0,0,7);ctx.fill();
+  if(punch){ctx.strokeStyle="rgba(255,255,255,.8)";ctx.lineWidth=4;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(108,-14+i*12);ctx.lineTo(124,-18+i*12);ctx.stroke()}}
+  ctx.restore();
+}
+function lootDraw(l){
+  if(l.type==="coin")coinIcon(l.x,l.y,9,l.spin);
+  else if(l.type==="gold"){glow(l.x,l.y,22,"rgba(255,201,58,.6)");ctx.fillStyle="#e0a810";ctx.beginPath();ctx.moveTo(l.x-16,l.y+8);ctx.lineTo(l.x+16,l.y+8);ctx.lineTo(l.x+11,l.y-8);ctx.lineTo(l.x-11,l.y-8);ctx.closePath();ctx.fill();ctx.fillStyle="#ffe680";ctx.fillRect(l.x-9,l.y-6,18,4)}
+  else if(l.type==="cash"){ctx.save();ctx.translate(l.x,l.y);ctx.rotate(Math.sin(l.spin)*.3);ctx.fillStyle="#3a9a5a";ctx.fillRect(-18,-10,36,20);ctx.fillStyle="#7fd39a";ctx.fillRect(-15,-7,30,14);ctx.fillStyle="#1f5a34";ctx.font="13px Jua, sans-serif";ctx.textAlign="center";ctx.fillText("만원",0,5);ctx.restore()}
+  else if(l.type==="gem"){const g=GEMS[floor];const k=Math.min(1,l.t/30);
+    ctx.save();ctx.translate(l.x,l.y);ctx.rotate(T*.02);for(let i=0;i<12;i++){ctx.fillStyle=`rgba(255,255,255,${.18*k})`;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,90*k,i*Math.PI/6,i*Math.PI/6+.18);ctx.closePath();ctx.fill()}ctx.restore();
+    glow(l.x,l.y,60,g.c);gem(l.x,l.y,22+8*Math.sin(l.t*.2)*(l.t<70?1:0),g.c)}
+}
+function rainbow(){const k=Math.min(1,(T-rainbow.t0)/90);const cols=GEMS.map(g=>g.c);ctx.lineWidth=16;
+  cols.forEach((c,i)=>{ctx.strokeStyle=c;ctx.beginPath();ctx.arc(250,700,330-i*16,Math.PI,Math.PI+Math.PI*k);ctx.stroke()})}
+rainbow.t0=0;
+function draw(){
+  const dpr=cv.width/W;ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(shake>0){ctx.translate(rnd(-shake,shake)*.5,rnd(-shake,shake)*.5)}
+  bg();
+  if(ended){if(!rainbow.t0)rainbow.t0=T;rainbow()}
+  for(const b of blocks)if(!b.gone)blockDraw(b);
+  for(const z of zombies)zombieDraw(z);
+  heroDraw();
+  for(const p of parts){ctx.globalAlpha=Math.max(0,p.l/p.m);ctx.fillStyle=p.c;if(p.sq)ctx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r);else{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);ctx.fill()}}ctx.globalAlpha=1;
+  for(const l of loot)lootDraw(l);
+  topHud();superBtn();
+  for(const t of texts){ctx.globalAlpha=Math.min(1,t.l/20);ctx.textAlign="center";ctx.font=`${t.big?32:21}px Jua, sans-serif`;ctx.lineWidth=6;ctx.strokeStyle="rgba(20,12,36,.85)";ctx.strokeText(t.t,t.x,t.y);ctx.fillStyle=t.c;ctx.fillText(t.t,t.x,t.y)}ctx.globalAlpha=1;
+  if(trans>0){ctx.fillStyle=`rgba(255,246,229,${Math.sin(trans/60*Math.PI)})`;ctx.fillRect(0,0,W,H)}
+}
+function loop(now){
+  dt=Math.min(2.5,(now-last)/16.67);last=now;T+=dt;
+  if(playing||ended){heroStep();zStep();lootStep()}
+  for(const b of blocks)b.shk-=dt;comboT-=dt;if(comboT<=0)combo=0;coinCool-=dt;shake=Math.max(0,shake-dt*1.2);dancing-=dt;trans=Math.max(0,trans-dt);
+  if(ended&&Math.random()<.3)parts.push({x:rnd(0,W),y:-10,vx:rnd(-1,1),vy:rnd(2,4),l:200,m:200,c:GEMS[ri(0,6)].c,r:rnd(4,7),sq:true});
+  parts=parts.filter(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.22*dt;p.vx*=.99;return (p.l-=dt)>0});
+  texts=texts.filter(t=>{t.y-=.5*dt;return (t.l-=dt)>0});
+  draw();requestAnimationFrame(loop);
+}
+
+/* 입력 */
+function pt(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}}
+cv.addEventListener("pointerdown",e=>{if(!playing||trans>0)return;A();const p=pt(e);
+  // 슈퍼 버튼
+  if(Math.hypot(p.x-(W-62),p.y-(GROUND+36))<40){if(superG>=SUPER_MAX&&hero.state!=="super"){superG=0;hero.state="super";hero.t=0;hero.target=null;hero.queue=null;hero.dizzy=0;S.superS()}else say(W-120,GROUND-20,"더 부수면 차요!","#fff");return}
+  // 위층 문
+  if(gemFound&&gemsGot.includes(floor)&&Math.abs(p.x-250)<60&&p.y>SHELVES[0]-170&&p.y<SHELVES[0]-90){nextFloor();return}
+  // 좀비
+  for(const z of zombies)if(Math.abs(p.x-z.x)<34&&p.y>z.y-90&&p.y<z.y+10){popZombie(z);return}
+  // 상자
+  let best=null,bd=48;for(const b of blocks){if(b.gone)continue;const d=Math.max(Math.abs(p.x-b.x),Math.abs(p.y-b.y));if(d<bd){bd=d;best=b}}
+  if(best){goTo(best);return}
+  // 빈 곳: 그 층으로 뛰기
+  const sy=[...SHELVES,GROUND].reduce((a,s)=>Math.abs(s-p.y)<Math.abs(a-p.y)?s:a,GROUND);
+  if(hero.state==="idle"&&hero.dizzy<=0){hero.from={x:hero.x,y:hero.y};hero.to={x:Math.max(40,Math.min(W-40,p.x)),y:sy};hero.face=p.x>hero.x?1:-1;hero.target=null;hero.state="jump";hero.t=0;hero.dur=18}
+});
+function fit(){const s=$("stage").getBoundingClientRect(),k=Math.min(s.width/W,s.height/H),w=Math.floor(W*k),h=Math.floor(H*k);
+  cv.style.width=w+"px";cv.style.height=h+"px";const dpr=Math.min(2.5,window.devicePixelRatio||1);cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+  ["intro","end"].forEach(id=>{$(id).style.width=w+"px";$(id).style.height=h+"px"})}
+new ResizeObserver(fit).observe($("stage"));
+$("goBtn").onclick=startGame;$("againBtn").onclick=()=>{rainbow.t0=0;startGame()};
+buildFloor(0);hud();fit();requestAnimationFrame(loop);
+window.__r={st:()=>({floor,gems:gemsGot.length,money,playing,ended,superG,hero:{x:hero.x,y:hero.y,state:hero.state,dizzy:hero.dizzy},blocks:blocks.filter(b=>!b.gone).map(b=>({x:b.x,y:b.y})),zombies:zombies.map(z=>({x:z.x,y:z.y})),door:gemFound&&gemsGot.includes(floor)})};
+})();
+</script>
+
+</body></html>

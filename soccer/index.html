@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="축구교실"><meta name="theme-color" content="#0f2a1c">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%;color-scheme:dark}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head><body>
+<title>서준이 축구교실</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+/* 한 화면 게임: 위 점수줄 + 세로 운동장. 메뉴·결과는 운동장 위에 겹치는 판 */
+:root{
+  --night:#0f2a1c; --panel:#173a28; --chalk:#f4f7ef; --muted:#b9d3bf; --lime:#c8f169; --red:#e8503a; --blue:#2f7de1;
+  --display:"Jua","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--night);color:var(--chalk);font-family:var(--display);overflow:hidden;box-sizing:border-box;
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.app{height:100%;display:flex;flex-direction:column;align-items:center;gap:8px;padding-block:8px;box-sizing:border-box;max-width:620px;margin:0 auto}
+.bar{width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 8px}
+h1{margin:0;font-weight:400;font-size:22px;white-space:nowrap;color:var(--lime)}
+.hud{display:flex;gap:6px;font-size:16px}
+.pill{white-space:nowrap;padding:4px 10px;border-radius:999px;background:var(--panel);color:var(--muted)}
+.pill.hi{background:var(--lime);color:var(--night)}
+.hudbtn{white-space:nowrap;font-family:var(--display);font-size:15px;border:0;border-radius:999px;padding:4px 12px;background:var(--panel);color:var(--chalk);cursor:pointer}
+.stage{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;position:relative}
+canvas{display:block;touch-action:none;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.msg{position:absolute;left:50%;top:63%;transform:translate(-50%,-50%);background:rgba(8,22,14,.84);padding:10px 18px;border-radius:16px;font-size:18px;max-width:82%;text-align:center;pointer-events:none;transition:opacity .3s;line-height:1.35}
+.msg small{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+.sheet{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center;background:rgba(8,22,14,.72);border-radius:16px;box-sizing:border-box}
+.sheet[hidden]{display:none}
+.sheet h2{margin:0;font-weight:400;font-size:34px;color:var(--lime);text-wrap:balance}
+.sheet p{margin:0;font-size:17px;color:var(--muted);max-width:30ch;line-height:1.45}
+.pick{display:grid;gap:12px;width:100%;max-width:340px}
+.pick button,.sheet .go{font-family:var(--display);border:0;border-radius:16px;cursor:pointer;text-align:left;padding:14px 16px;background:var(--chalk);color:var(--night);display:grid;gap:2px}
+.pick button b{font-weight:400;font-size:22px}
+.pick button span{font-size:14px;color:#3d5a47}
+.sheet .go{text-align:center;font-size:22px;background:var(--lime);padding:12px 30px}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.sheet .ghost{font-family:var(--display);font-size:18px;border:0;border-radius:14px;padding:12px 20px;background:var(--panel);color:var(--chalk);cursor:pointer}
+.stars{font-size:44px;letter-spacing:.1em;color:var(--lime)}
+.tip{background:var(--panel);border-radius:14px;padding:12px 14px;font-size:16px;color:var(--chalk);max-width:30ch;line-height:1.45}
+.tip em{font-style:normal;color:var(--lime);display:block;font-size:13px;margin-bottom:4px;letter-spacing:.05em}
+button:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.msg{transition:none}}
+</style>
+
+<div class="app">
+  <div class="bar">
+    <h1>서준이 축구교실</h1>
+    <div class="hud" id="hud"></div>
+  </div>
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="운동장. 화면을 누른 채 뒤로 당겼다가 놓으면 공을 찹니다."></canvas>
+    <div class="msg" id="msg" style="opacity:0"></div>
+    <div class="sheet" id="menu">
+      <h2>오늘은 뭐 연습할까?</h2>
+      <div class="pick">
+        <button type="button" id="goShoot"><b>슛 · 골키퍼 반대쪽!</b><span>골키퍼를 보고 없는 쪽 구석으로 차요</span></button>
+        <button type="button" id="goPass"><b>패스 · 빈 친구 찾기!</b><span>빨간 수비가 없는 길로 친구에게 줘요</span></button>
+      </div>
+      <p>화면을 꾹 누르고 뒤로 당겼다가 놓으면 뻥!</p>
+    </div>
+    <div class="sheet" id="done" hidden>
+      <h2 id="doneTitle">잘했어!</h2>
+      <div class="stars" id="doneStars"></div>
+      <p id="doneText"></p>
+      <div class="tip"><em>진짜 축구교실에서도</em><span id="doneTip"></span></div>
+      <div class="row"><button type="button" class="go" id="again">한 번 더</button><button type="button" class="ghost" id="toMenu">다른 연습</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const cv=$("cv"),ctx=cv.getContext("2d");
+const W=500,H=820,BR=13;
+const TRIES=5;
+let mode=null,level=1,tries=0,score=0,stars=0,ball=null,kicker=null,aim=null,flying=false,ended=false,t0=0,fr=0,fx=[],sound=true;
+let keeper=null,goal={l:140,r:360,y:96};
+let mates=[],defs=[];
+try{level=Math.max(1,+(localStorage.getItem("soccer-lv")||1))}catch(_){}
+
+/* 소리 */
+let ac=null;
+function A(){if(!sound)return null;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume()}catch(_){ac=null}return ac}
+function tone(f1,f2,d,type,vol,at){const a=A();if(!a)return;const t=a.currentTime+(at||0),o=a.createOscillator(),g=a.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(vol||.25,t);g.gain.exponentialRampToValueAtTime(.001,t+d+.02);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.05)}
+function kickS(p){tone(160,60,.12,"sine",.35+p*.2)}
+function whistle(){tone(2200,2100,.18,"square",.07);tone(2300,2200,.35,"square",.07,.22)}
+function cheer(){const a=A();if(!a)return;const n=a.sampleRate*1.2,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.min(1,i/4000)*(1-i/n);
+  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();f.type="bandpass";f.frequency.value=1200;f.Q.value=.6;g.gain.value=.35;s.buffer=b;s.connect(f).connect(g).connect(a.destination);s.start();
+  [523,659,784].forEach((x,i)=>tone(x,x,.18,"triangle",.12,i*.1))}
+function boo(){tone(300,150,.4,"sawtooth",.08)}
+function post(){tone(1500,1400,.25,"triangle",.2)}
+function say(t){if(!sound||!window.speechSynthesis)return;try{const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.95;u.pitch=1.2;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(_){}}
+
+let msgT=null;
+function msg(h,small,ms){const m=$("msg");m.innerHTML=h+(small?`<small>${small}</small>`:"");m.style.opacity=1;clearTimeout(msgT);if(ms)msgT=setTimeout(()=>m.style.opacity=0,ms)}
+function hud(){
+  if(!mode){$("hud").innerHTML=`<button type="button" class="hudbtn" id="snd">${sound?"소리 켬":"소리 끔"}</button>`}
+  else{let dots="";for(let i=0;i<TRIES;i++)dots+=i<tries?"●":"○";
+    $("hud").innerHTML=`<span class="pill">${level}단계</span><span class="pill hi">${mode==="shoot"?"골":"성공"} ${score}</span><span class="pill">${dots}</span><button type="button" class="hudbtn" id="snd">${sound?"소리":"무음"}</button>`}
+  $("snd").onclick=()=>{sound=!sound;hud()};
+}
+
+/* 판 준비 */
+function start(m){mode=m;tries=0;score=0;stars=0;ended=false;$("menu").hidden=true;$("done").hidden=true;A();whistle();setup();hud();
+  msg(m==="shoot"?"골키퍼를 잘 봐요!":"빨간 수비가 없는 친구는 누구?",m==="shoot"?"없는 쪽 구석으로 뻥!":"그 친구에게 패스!",2200)}
+function setup(){
+  flying=false;aim=null;fr=0;t0=performance.now();
+  if(mode==="shoot"){
+    ball={x:W/2+(Math.random()-.5)*120,y:640,vx:0,vy:0,z:0};kicker={x:ball.x,y:ball.y+34,c:"#2f7de1",n:7};
+    keeper={x:W/2,base:W/2,ph:Math.random()*6,dive:0,dir:0,state:"idle",react:0};
+  }else{
+    ball={x:W/2,y:660,vx:0,vy:0};kicker={x:W/2,y:694,c:"#2f7de1",n:7};
+    // 친구 3명, 그중 하나만 길이 비어 있음
+    const xs=[[70,170],[200,300],[330,430]].map(r=>r[0]+Math.random()*(r[1]-r[0]));
+    mates=xs.map((x,i)=>({x,y:170+Math.random()*230,n:[9,10,11][i],got:0}));
+    const open=Math.floor(Math.random()*3);
+    defs=mates.filter((m,i)=>i!==open).map(m=>{const k=.45+Math.random()*.2;return {x:ball.x+(m.x-ball.x)*k,y:ball.y+(m.y-ball.y)*k,tx:0,ty:0}});
+    if(level>=2){const m=mates[open],k=.5;defs.push({x:ball.x+(m.x-ball.x)*k+(m.x<W/2?90:-90),y:ball.y+(m.y-ball.y)*k,tx:0,ty:0,lazy:1})}
+    defs.forEach(d=>{d.hx=d.x;d.hy=d.y});
+    mates.open=open;
+  }
+}
+function next(){tries++;hud();if(tries>=TRIES){setTimeout(finish,900);return}setTimeout(setup,1100)}
+function finish(){
+  ended=true;const s=score>=4?3:score>=2?2:score>=1?1:0;
+  $("doneStars").textContent="★".repeat(s)+"☆".repeat(3-s);
+  $("doneTitle").textContent=s===3?"완벽해!":s===2?"잘했어!":s===1?"좋아, 한 번 더!":"괜찮아, 다시!";
+  $("doneText").textContent=mode==="shoot"?`${TRIES}번 차서 ${score}골!`:`${TRIES}번 패스해서 ${score}번 성공!`;
+  $("doneTip").textContent=mode==="shoot"
+    ?"차기 전에 고개를 들고 골키퍼를 한 번 봐요. 골키퍼가 없는 쪽 구석이 제일 잘 들어가요. 발 안쪽(인사이드)으로 차면 원하는 곳으로 가요."
+    :"공을 받기 전에 고개를 들고 주위를 둘러봐요. 수비가 없는 친구에게 주면 우리 팀 공이 돼요. 빨리 찾을수록 좋아요!";
+  if(s===3&&level<5){level++;try{localStorage.setItem("soccer-lv",level)}catch(_){}$("doneText").textContent+=` 다음은 ${level}단계!`}
+  if(s>=2)cheer();
+  $("done").hidden=false;$("msg").style.opacity=0;
+}
+
+/* 차기: 화면 아무 데나 누르고 뒤로 당겼다 놓기 */
+function pt(e){const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H}}
+cv.addEventListener("pointerdown",e=>{if(!mode||flying||ended||!$("menu").hidden)return;A();cv.setPointerCapture(e.pointerId);const p=pt(e);aim={sx:p.x,sy:p.y,dx:0,dy:-1,pow:0};$("msg").style.opacity=0});
+cv.addEventListener("pointermove",e=>{if(!aim)return;const p=pt(e),dx=aim.sx-p.x,dy=aim.sy-p.y,l=Math.hypot(dx,dy);if(l>6){aim.dx=dx/l;aim.dy=dy/l}aim.pow=Math.min(1,l/220)});
+cv.addEventListener("pointerup",()=>{if(!aim)return;const a=aim;aim=null;if(a.pow<.05)return;
+  const sp=mode==="shoot"?7+a.pow*17:4+a.pow*14;ball.vx=a.dx*sp;ball.vy=a.dy*sp;flying=true;fr=0;kickS(a.pow);ball.kickT=performance.now();
+  if(mode==="shoot"){const tt=(ball.y-goal.y)/Math.max(.5,-ball.vy);keeper.target=ball.vx*tt+ball.x;keeper.state="react";keeper.react=Math.max(6,16-level*2)}
+});
+cv.addEventListener("pointercancel",()=>{aim=null});
+
+/* 매 프레임 */
+function update(){
+  fr++;
+  if(mode==="shoot"&&keeper){
+    const k=keeper,amp=40+level*12,spd=.018+level*.006;
+    if(k.state==="idle"){k.ph+=spd;k.x=k.base+Math.sin(k.ph)*amp}
+    else if(k.state==="react"){if(--k.react<=0)k.state="dive"}
+    else if(k.state==="dive"){const vmax=2.6+level*.55,dx=Math.max(goal.l+20,Math.min(goal.r-20,k.target))-k.x;k.x+=Math.sign(dx)*Math.min(Math.abs(dx),vmax);k.dir=Math.sign(dx)}
+  }
+  if(mode==="pass"&&!flying){
+    // 3초가 지나면 수비가 빈 길로 천천히 옮겨 감 → 빨리 볼수록 쉬움
+    const sec=(performance.now()-t0)/1000;
+    if(sec>2.5)for(const d of defs){const m=mates[mates.open];const k=.55;const tx=ball.x+(m.x-ball.x)*k,ty=ball.y+(m.y-ball.y)*k;
+      const s=.25+level*.12;if(d.lazy||d===defs[0]){const dx=tx-d.x,dy=ty-d.y,l=Math.hypot(dx,dy);if(l>1){d.x+=dx/l*s*(d.lazy?1:.6);d.y+=dy/l*s*(d.lazy?1:.6)}}}
+  }
+  if(!flying)return;
+  ball.x+=ball.vx;ball.y+=ball.vy;
+  if(mode==="shoot"){
+    const k=keeper;
+    if(ball.y<goal.y+44&&ball.y>goal.y-6&&Math.abs(ball.x-k.x)<34+BR&&!ball.done){ // 골키퍼가 막음
+      ball.done=1;ball.vy=Math.abs(ball.vy)*.45;ball.vx=(ball.x-k.x)*.15;boo();msg("막혔다!","골키퍼가 있는 쪽이었어요. 반대쪽 구석으로!",1600);end(false);return}
+    if(!ball.done&&ball.y<=goal.y){
+      const inGoal=ball.x>goal.l+BR*.5&&ball.x<goal.r-BR*.5,hitPost=Math.abs(ball.x-goal.l)<BR||Math.abs(ball.x-goal.r)<BR;
+      ball.done=1;
+      if(hitPost){post();ball.vy=-ball.vy*.5;ball.vx*=-.4;msg("땡! 골대!","조금만 더 안쪽으로!",1600);end(false);return}
+      if(inGoal){const corner=Math.min(ball.x-goal.l,goal.r-ball.x)<55;score++;cheer();say("Goal!");confetti(ball.x,goal.y);
+        msg(corner?"구석 골! 최고!":"골!",corner?"골키퍼가 못 닿는 곳이에요":"골키퍼 반대쪽이라 들어갔어요",1600);ball.net=1;end(true);return}
+      boo();msg("아깝다, 골대 밖!","골대 안쪽 구석을 노려요",1600);end(false);return}
+    if(ball.net){ball.vx*=.8;ball.vy*=.8}
+    if(ball.x<-30||ball.x>W+30||ball.y>H+30){if(!ball.done){ball.done=1;msg("앗, 밖으로!","",1300);end(false)}}
+  }else{
+    ball.vx*=.987;ball.vy*=.987;
+    for(const d of defs)if(Math.hypot(ball.x-d.x,ball.y-d.y)<26+BR){boo();msg("뺏겼다!","빨간 수비가 있는 길이었어요",1600);flying=false;ball.vx=ball.vy=0;end(false);return}
+    for(const m of mates)if(Math.hypot(ball.x-m.x,ball.y-m.y)<28+BR){
+      const sec=(ball.kickT-t0)/1000,fast=sec<3;score++;m.got=1;cheer();say(fast?"Super pass!":"Nice pass!");confetti(m.x,m.y);
+      msg(fast?"번개 패스!":"패스 성공!",fast?"빨리 찾았어요":"빈 친구를 찾았어요",1600);flying=false;ball.vx=ball.vy=0;end(true);return}
+    if(ball.x<BR||ball.x>W-BR||ball.y<BR||ball.y>H-BR){boo();msg("밖으로 나갔어요","조금 살살 차 봐요",1500);flying=false;end(false);return}
+    if(Math.hypot(ball.vx,ball.vy)<.25){boo();msg("공이 멈췄어요","조금 더 세게 당겨요",1500);flying=false;end(false);return}
+  }
+}
+function end(ok){if(ball.ended)return;ball.ended=1;setTimeout(()=>{flying=false},600);next()}
+function confetti(x,y){for(let i=0;i<40;i++)fx.push({x,y,vx:(Math.random()-.5)*10,vy:(Math.random()-.9)*10,c:["#c8f169","#f4f7ef","#2f7de1","#ffd34d"][i%4],t:0})}
+
+/* 그리기 */
+function field(){
+  for(let i=0;i<11;i++){ctx.fillStyle=i%2?"#2f8f4e":"#2a8547";ctx.fillRect(0,i*H/11,W,H/11+1)}
+  ctx.strokeStyle="rgba(255,255,255,.85)";ctx.lineWidth=4;ctx.strokeRect(14,14,W-28,H-28);
+  if(mode==="pass"){ctx.beginPath();ctx.moveTo(14,H/2+120);ctx.lineTo(W-14,H/2+120);ctx.stroke();ctx.beginPath();ctx.arc(W/2,H/2+120,70,0,7);ctx.stroke()}
+  else{ctx.strokeRect(80,goal.y,W-160,190);ctx.strokeRect(160,goal.y,W-320,70);ctx.beginPath();ctx.arc(W/2,goal.y+270,4,0,7);ctx.fillStyle="#fff";ctx.fill();
+    ctx.beginPath();ctx.arc(W/2,goal.y+190,60,.15*Math.PI,.85*Math.PI);ctx.stroke()}
+}
+function goalDraw(){
+  ctx.fillStyle="rgba(255,255,255,.12)";ctx.fillRect(goal.l,goal.y-50,goal.r-goal.l,50);
+  ctx.strokeStyle="rgba(255,255,255,.45)";ctx.lineWidth=1;
+  for(let x=goal.l;x<=goal.r;x+=14){ctx.beginPath();ctx.moveTo(x,goal.y-50);ctx.lineTo(x,goal.y);ctx.stroke()}
+  for(let y=goal.y-50;y<=goal.y;y+=12){ctx.beginPath();ctx.moveTo(goal.l,y);ctx.lineTo(goal.r,y);ctx.stroke()}
+  ctx.strokeStyle="#fff";ctx.lineWidth=8;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(goal.l,goal.y);ctx.lineTo(goal.l,goal.y-50);ctx.lineTo(goal.r,goal.y-50);ctx.lineTo(goal.r,goal.y);ctx.stroke();ctx.lineCap="butt";
+  // 구석 표시: 여기가 잘 들어가요
+  ctx.fillStyle="rgba(200,241,105,.22)";ctx.fillRect(goal.l+4,goal.y-46,48,42);ctx.fillRect(goal.r-52,goal.y-46,48,42);
+}
+function person(x,y,shirt,n,arms,face){
+  ctx.save();ctx.translate(x,y);
+  ctx.fillStyle="rgba(0,0,0,.22)";ctx.beginPath();ctx.ellipse(0,20,22,8,0,0,7);ctx.fill();
+  if(arms){ctx.strokeStyle=shirt;ctx.lineWidth=10;ctx.lineCap="round";ctx.beginPath();ctx.moveTo(-14,-2);ctx.lineTo(-14-arms,-14);ctx.moveTo(14,-2);ctx.lineTo(14+arms,-14);ctx.stroke();
+    ctx.fillStyle="#f5c9a0";ctx.beginPath();ctx.arc(-14-arms,-14,6,0,7);ctx.arc(14+arms,-14,6,0,7);ctx.fill()}
+  ctx.fillStyle=shirt;ctx.beginPath();ctx.roundRect(-17,-10,34,30,10);ctx.fill();
+  ctx.fillStyle="#fff";ctx.font="15px Jua, sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(n,0,6);
+  ctx.fillStyle="#f5c9a0";ctx.beginPath();ctx.arc(0,-20,12,0,7);ctx.fill();
+  ctx.fillStyle="#3a2414";ctx.beginPath();ctx.arc(0,-24,12,Math.PI,0);ctx.fill();
+  if(face){ctx.fillStyle="#222";ctx.beginPath();ctx.arc(-4,-19,1.8,0,7);ctx.arc(4,-19,1.8,0,7);ctx.fill()}
+  ctx.restore();
+}
+function ballDraw(x,y,r){
+  ctx.fillStyle="rgba(0,0,0,.25)";ctx.beginPath();ctx.ellipse(x+3,y+5,r,r*.6,0,0,7);ctx.fill();
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+  ctx.fillStyle="#1d1d1d";ctx.beginPath();for(let i=0;i<5;i++){const a=i*Math.PI*2/5-Math.PI/2+(fr*.0)+(ball&&flying?fr*.3:0);const px=x+Math.cos(a)*r*.38,py=y+Math.sin(a)*r*.38;i?ctx.lineTo(px,py):ctx.moveTo(px,py)}ctx.closePath();ctx.fill();
+  ctx.strokeStyle="#bbb";ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.stroke();
+}
+function draw(){
+  const dpr=cv.width/W;ctx.setTransform(dpr,0,0,dpr,0,0);
+  field();
+  if(mode==="shoot"){goalDraw();if(keeper)person(keeper.x,goal.y+18,"#f2a531",1,keeper.state==="dive"?20:10,true)}
+  if(mode==="pass"){for(const m of mates){person(m.x,m.y,"#2f7de1",m.n,m.got?16:0,true);
+      if(!flying&&!ended){ctx.strokeStyle="rgba(255,255,255,.35)";ctx.lineWidth=2;ctx.setLineDash([3,6]);ctx.beginPath();ctx.arc(m.x,m.y,30,0,7);ctx.stroke();ctx.setLineDash([])}}
+    for(const d of defs)person(d.x,d.y,"#e8503a","",8,true)}
+  if(mode){
+    if(aim&&aim.pow>.03){ // 겨냥선
+      ctx.setLineDash([8,8]);ctx.strokeStyle="rgba(255,255,255,.8)";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(ball.x,ball.y);
+      const L=mode==="shoot"?(ball.y-goal.y+20)/Math.max(.2,-aim.dy):120+aim.pow*360;ctx.lineTo(ball.x+aim.dx*Math.min(L,900),ball.y+aim.dy*Math.min(L,900));ctx.stroke();ctx.setLineDash([]);
+      const bw=W*.56,bx=(W-bw)/2,by=H-40;ctx.fillStyle="rgba(0,0,0,.35)";ctx.fillRect(bx,by,bw,14);
+      const g=ctx.createLinearGradient(bx,0,bx+bw,0);g.addColorStop(0,"#7dd87d");g.addColorStop(.6,"#ffd34d");g.addColorStop(1,"#e8503a");ctx.fillStyle=g;ctx.fillRect(bx,by,bw*aim.pow,14);
+      ctx.fillStyle="#fff";ctx.font="15px Jua, sans-serif";ctx.textAlign="center";ctx.fillText(mode==="shoot"?"힘 "+Math.round(aim.pow*100):(aim.pow<.35?"살살":aim.pow<.75?"딱 좋아":"세게"),W/2,by-8);
+    }
+    if(!flying||mode==="pass")person(kicker.x,kicker.y,kicker.c,kicker.n,0,true);
+    ballDraw(ball.x,ball.y,BR*(mode==="shoot"&&flying?Math.max(.75,1-(640-ball.y)/2400):1));
+  }
+  for(const p of fx){ctx.globalAlpha=Math.max(0,1-p.t/60);ctx.fillStyle=p.c;ctx.fillRect(p.x-3,p.y-3,6,6)}ctx.globalAlpha=1;
+}
+function loop(){update();fx=fx.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.3;return ++p.t<60});draw();requestAnimationFrame(loop)}
+
+function fit(){const s=$("stage").getBoundingClientRect(),k=Math.min(s.width/W,s.height/H),w=Math.floor(W*k),h=Math.floor(H*k);
+  cv.style.width=w+"px";cv.style.height=h+"px";const dpr=Math.min(2.5,window.devicePixelRatio||1);cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+new ResizeObserver(fit).observe($("stage"));
+
+$("goShoot").onclick=()=>start("shoot");$("goPass").onclick=()=>start("pass");
+$("again").onclick=()=>start(mode);$("toMenu").onclick=()=>{mode=null;$("done").hidden=true;$("menu").hidden=false;hud()};
+mode=null;hud();fit();loop();
+window.__soccer={st:()=>({mode,tries,score,flying,level}),ball:()=>ball,keeper:()=>keeper,mates:()=>mates,defs:()=>defs};
+})();
+</script>
+
+</body></html>
