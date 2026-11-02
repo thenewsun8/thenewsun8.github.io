@@ -142,5 +142,36 @@
     return { total: Math.round(total), parts: weighted, raw: parts, mode };
   }
 
-  g.Compat = { match, sajuScore, mbtiScore, enneaScore, bloodScore, shapeScore, branchRel, stemRel, WEIGHTS };
+  /* 공통 관심사 */
+  function sharedInterests(a, b) { return (a || []).filter(x => (b || []).includes(x)); }
+
+  /* 그룹 구성: me + 후보 중 서로의 궁합이 높은 사람들을 탐욕적으로 묶는다.
+     persons: [{id, person}] (person = match()에 넣는 형태), size: 그룹 인원(나 포함), count: 그룹 수 */
+  function formGroups(mePerson, candidates, size, count, usedIds) {
+    const used = new Set(usedIds || []);
+    const cache = new Map();
+    const pair = (x, y) => { const k = x.id < y.id ? x.id + '|' + y.id : y.id + '|' + x.id; if (!cache.has(k)) cache.set(k, match(x.person, y.person, 'friend').total); return cache.get(k); };
+    const me = { id: 'me', person: mePerson };
+    const groups = [];
+    for (let gIdx = 0; gIdx < count; gIdx++) {
+      const members = [me];
+      while (members.length < size) {
+        let best = null, bestV = -1;
+        candidates.forEach(c => {
+          if (used.has(c.id) || members.includes(c)) return;
+          const vals = members.map(m => pair(m, c));
+          const v = Math.min(...vals) * 0.6 + vals.reduce((s, x) => s + x, 0) / vals.length * 0.4;   // 최저 궁합을 더 중시
+          if (v > bestV) { bestV = v; best = c; }
+        });
+        if (!best) break; members.push(best); used.add(best.id);
+      }
+      if (members.length < 3) break;
+      const pairs = [];
+      for (let i = 0; i < members.length; i++) for (let j = i + 1; j < members.length; j++) pairs.push(pair(members[i], members[j]));
+      groups.push({ members, avg: Math.round(pairs.reduce((s, x) => s + x, 0) / pairs.length), min: Math.min(...pairs) });
+    }
+    return groups;
+  }
+
+  g.Compat = { match, sharedInterests, formGroups, sajuScore, mbtiScore, enneaScore, bloodScore, shapeScore, branchRel, stemRel, WEIGHTS };
 })(typeof window !== 'undefined' ? window : globalThis);

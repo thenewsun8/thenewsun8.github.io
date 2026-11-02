@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>매치 MATCH — 나를 알고, 맞는 사람을 만나기</title>
-<meta name="description" content="사주(명리)·혈액형·MBTI·애니어그램·도형심리를 모두 따져 가장 잘 맞는 사람을 점수로 보여주는 매칭 앱. 1 나를 알기 → 2 매칭 프렌즈 → 3 매칭 데이트.">
+<meta name="description" content="사주(명리)·혈액형·MBTI·애니어그램·도형심리를 모두 따져 가장 잘 맞는 사람을 점수로 보여주는 매칭 앱. 1 나를 알기 → 2 매칭 프렌즈 → 3 매칭 데이트 → 4 매칭 그룹. 얼굴 없이, 내면으로 먼저.">
 <meta name="theme-color" content="#120C1A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -24,6 +24,7 @@
   <button data-tab="me" role="tab" aria-current="page"><span>STEP 1</span><em data-i18n="tab.me" style="font-style:normal">나를 알기</em></button>
   <button data-tab="friend" role="tab"><span>STEP 2</span><em data-i18n="tab.friend" style="font-style:normal">매칭 프렌즈</em></button>
   <button data-tab="date" role="tab"><span>STEP 3</span><em data-i18n="tab.date" style="font-style:normal">매칭 데이트</em></button>
+  <button data-tab="group" role="tab"><span>STEP 4</span><em data-i18n="tab.group" style="font-style:normal">매칭 그룹</em></button>
  </div>
  <button id="langBtn" class="chip" aria-label="Language">EN</button>
 </div></header>
@@ -59,7 +60,9 @@
     <label class="f"><span data-i18n="f.shape">도형심리</span><select class="in" name="shape" id="meShape"><option value="" data-i18n="opt.unknown">모름</option></select></label>
    </div>
    <label class="f"><span data-i18n="f.bio">한 줄 소개 <small data-i18n="f.opt">(선택)</small></span><input class="in" name="bio" maxlength="60" placeholder="예: 주말엔 산을 걷고 평일엔 책을 읽어요."></label>
+   <div class="f"><span style="font-size:13px;color:var(--soft)" data-i18n="f.interests">내가 좋아하는 것 <small data-i18n="f.interestsMax">(최대 5개 · 상대에게 보여요)</small></span><div class="chips" id="meInterests"></div></div>
    <p class="help" id="shapeHelp"></p>
+   <p class="help privacy" data-i18n="me.privacy">🔒 생년월일과 시각은 명식 계산에만 쓰이고 상대에게는 보이지 않습니다. 상대가 보는 것은 별명·나이대·나라·기질(일간)·좋아하는 것뿐입니다. 사진은 없습니다 — 내면으로 먼저 친해지는 앱입니다.</p>
    <div class="row" style="justify-content:space-between">
     <span class="help" data-i18n="me.local">입력한 정보는 이 기기(브라우저)에만 저장됩니다.</span>
     <button class="btn p" type="submit" data-i18n="me.submit">명식 세우기 →</button>
@@ -84,11 +87,27 @@
    </div>
    <p class="help" id="dateNote" hidden data-i18n="m.dateNote">매칭 데이트는 지금은 남↔여 매칭만 열려 있습니다. 성별은 자동으로 상대 성별로 고정됩니다.</p>
   </div>
+  <div class="card reco" id="reco"></div>
   <div class="globeWrap"><canvas id="globe" width="720" height="720" aria-label="지구본"></canvas><div class="globeTip" id="globeTip" data-i18n="gl.tip">지구본을 돌려 나라를 누르면 그 나라만 봅니다</div><div class="globeNote" data-i18n="gl.note">점 색 = 궁합 점수</div></div>
   <div class="row" style="justify-content:space-between"><span class="count" id="mCount"></span>
    <div class="row"><input class="in" id="codeIn" placeholder="친구 코드 붙이기" data-i18n-ph="m.codePh" style="width:170px;padding:8px 10px;font-size:13px"><button class="btn s" id="codeAdd" data-i18n="m.codeAdd">코드로 추가</button></div></div>
   <div class="list" id="mList"></div>
   <p class="help" data-i18n="m.demo">지금 보이는 사람들은 서버 연결 전 데모용 생성 프로필입니다. 실제 친구는 서로 "내 코드"를 주고받아 추가할 수 있어요.</p>
+ </div>
+</div></section>
+<!-- STEP 4 · 매칭 그룹 -->
+<section id="tab-group" class="tab" hidden><div class="w">
+ <div><div class="eyebrow" data-i18n="group.eyebrow">Step 4 · Matching Group</div><h1 data-i18n="group.title">매칭 그룹</h1><p class="lead" data-i18n="group.lead">혼자 말고 여럿이서. 사주궁합이 서로서로 높은 사람끼리 앱이 모임을 짜 줍니다. 관심사로 묶을 수도, 궁합만으로 묶을 수도 있어요.</p></div>
+ <div id="needMe2" class="empty" hidden><p data-i18n="m.needMe">먼저 1단계에서 당신의 명식을 세워야 매칭을 시작할 수 있어요.</p><button class="btn p" style="margin-top:12px" data-tab="me" data-i18n="m.goMe">1단계로 가기</button></div>
+ <div id="groupBody" style="display:flex;flex-direction:column;gap:14px">
+  <div class="card"><div class="filters">
+   <label class="f"><span data-i18n="gr.size">모임 인원</span><select class="in" id="gSize"><option value="4">4</option><option value="5" selected>5</option><option value="6">6</option></select></label>
+   <label class="f"><span data-i18n="gr.theme">묶는 기준</span><select class="in" id="gTheme"></select></label>
+   <label class="f"><span data-i18n="fl.country">나라</span><select class="in" id="gCountry"></select></label>
+   <label class="f"><span data-i18n="fl.age">나이</span><div class="row" style="flex-wrap:nowrap"><input class="in" type="number" id="gAgeMin" min="18" max="90" value="20" style="width:50%"><span>~</span><input class="in" type="number" id="gAgeMax" min="18" max="90" value="60" style="width:50%"></div></label>
+  </div>
+  <div class="row" style="justify-content:space-between;margin-top:12px"><span class="help" data-i18n="gr.help">모임 안의 모든 짝(1:1) 궁합을 계산해 가장 낮은 짝 점수가 높은 조합부터 고릅니다.</span><button class="btn g s" id="gReroll" data-i18n="gr.reroll">다시 짜기 🎲</button></div></div>
+  <div class="list" id="gList"></div>
  </div>
 </div></section>
 </main>
@@ -97,6 +116,7 @@
  <div class="box" role="dialog" aria-modal="true">
   <div class="hd"><div class="t"><b id="chatName"></b><small id="chatSub"></small></div><button class="x" id="chatClose" aria-label="닫기">×</button></div>
   <div class="msgs" id="msgs"></div>
+  <div class="quick" id="quick"></div>
   <form class="compose" id="compose"><input class="in" id="msgIn" maxlength="300" autocomplete="off" placeholder="메시지 (자동 번역되어 전달돼요)" data-i18n-ph="c.ph"><button class="btn p s" type="submit" data-i18n="c.send">보내기</button></form>
  </div>
 </div>

@@ -65,6 +65,12 @@
     const slot = Math.floor(((lhh * 60 + lmm) + 60) / 120) % 12;
     const hS = ((dS % 5) * 2 + slot) % 10, hB = slot;
 
+    return analyze([hS, hB, dS, dB, mS, mB, yS, yB], { sajuYear, monthIndex: mi, solarLongitude: lon });
+  }
+
+  /* 여덟 글자(시간·시지·일간·일지·월간·월지·연간·연지 index)만으로 분석 — 생년월일 없이 공유 가능 */
+  function analyze(arr, extra) {
+    const [hS, hB, dS, dB, mS, mB, yS, yB] = arr;
     const pillars = [
       { key: 'hour', s: hS, b: hB }, { key: 'day', s: dS, b: dB },
       { key: 'month', s: mS, b: mB }, { key: 'year', s: yS, b: yB }
@@ -80,7 +86,6 @@
     });
     const dm = STEM_ELEM[dS];
     const support = elems[dm] + elems[(dm + 4) % 5];   // 비겁 + 인성
-    const drain = total - support;
     const strengthRatio = support / total;
     const strength = strengthRatio >= 0.55 ? 'strong' : strengthRatio <= 0.35 ? 'weak' : 'balanced';
     // 용신(간이): 신약→인성/비겁 중 적은 것, 신강→식상·재·관 중 적은 것, 중화→가장 적은 오행
@@ -104,11 +109,11 @@
         else tenGods.관성++;
       });
     });
-    return {
-      pillars, dayMaster: dS, dayMasterElem: dm, elems, total, yinRatio: yin / total,
-      strength, strengthRatio, yong, tenGods, animal: yB, sajuYear, monthIndex: mi, solarLongitude: lon,
+    return Object.assign({
+      arr: arr.slice(), pillars, dayMaster: dS, dayMasterElem: dm, elems, total, yinRatio: yin / total,
+      strength, strengthRatio, yong, tenGods, animal: yB, sajuYear: null, monthIndex: mB === 1 ? 11 : (mB + 10) % 12,
       ganji: pillars.map(pl => STEMS[pl.s] + BRANCHES[pl.b])
-    };
+    }, extra || {});
   }
 
   const DAY_MASTER_TEXT = {
@@ -151,5 +156,5 @@
   };
 
   g.Saju = { STEMS, STEM_KO, STEM_ELEM, BRANCHES, BRANCH_KO, BRANCH_ELEM, ANIMALS, ANIMALS_EN, ELEM, ELEM_HANJA, ELEM_EN, ELEM_COLOR,
-    gen, ctrl, compute, sunLongitude, julianDay, DAY_MASTER_TEXT, ELEM_TEXT, STRENGTH_TEXT, TEN_TEXT };
+    gen, ctrl, compute, analyze, sunLongitude, julianDay, DAY_MASTER_TEXT, ELEM_TEXT, STRENGTH_TEXT, TEN_TEXT };
 })(typeof window !== 'undefined' ? window : globalThis);

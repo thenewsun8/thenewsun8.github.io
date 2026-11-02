@@ -90,6 +90,23 @@
     _: [['🙂', null], ['👍', null], ['😄', null]]
   };
 
+  // 관심사 (상대에게 보이는 '내가 좋아하는 것')
+  const INTERESTS = [
+    ['movie','영화','Movies','🎬'], ['book','독서','Books','📚'], ['hike','등산·걷기','Hiking','🥾'], ['cook','요리','Cooking','🍳'],
+    ['music','음악','Music','🎵'], ['travel','여행','Travel','✈️'], ['game','게임','Games','🎮'], ['sport','운동','Sports','🏃'],
+    ['photo','사진','Photography','📷'], ['art','그림·미술','Art','🎨'], ['pet','반려동물','Pets','🐾'], ['tea','커피·차','Coffee & Tea','☕'],
+    ['write','글쓰기','Writing','✍️'], ['dance','춤','Dance','💃'], ['yoga','요가·명상','Yoga & Meditation','🧘'], ['board','보드게임','Board games','🎲'],
+    ['camp','캠핑','Camping','🏕️'], ['lang','언어 배우기','Languages','🗣️'], ['volunteer','봉사','Volunteering','🤝'], ['invest','경제·투자','Finance','📈'],
+    ['saju','사주·점성','Saju & Astrology','🔮'], ['kpop','K-POP','K-POP','🎤']
+  ].map(x => ({ id: x[0], ko: x[1], en: x[2], icon: x[3] }));
+  const interestOf = id => INTERESTS.find(i => i.id === id);
+
+  // 그룹 대화 데모 답장 (한국어 / 영어)
+  const GROUP_LINES = {
+    ko: ['다들 반가워요! 이 모임 오행이 고르게 섞였다니 신기하네요.', '저는 주말에 시간 괜찮아요. 다들 언제가 편하세요?', '처음엔 온라인으로 얘기하다가 괜찮으면 한번 만나요.', '궁합 점수 높은 사람끼리 모이니까 대화가 편하네요.', '좋아하는 거 하나씩 말해볼까요? 저는 등산이요.'],
+    en: ['Nice to meet everyone! Funny that our elements balance out as a group.', 'I\'m free on weekends. When works for you all?', 'Let\'s chat online first and meet up if it feels right.', 'Talking is easy when everyone\'s score is high.', 'Shall we each share one thing we love? Hiking for me.']
+  };
+
   // 시드 난수 (항상 같은 후보 풀)
   function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
   const MBTI = ['INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP','ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
@@ -117,6 +134,7 @@
         y, m, d, hh, mm, tz: c.tz,
         blood: pick(r, BLOODS), mbti: pick(r, MBTI), ennea: 1 + Math.floor(r() * 9), shape: pick(r, SHAPES),
         bio: pick(r, BIOS_KO),
+        interests: Array.from(new Set([pick(r, INTERESTS), pick(r, INTERESTS), pick(r, INTERESTS), r() < .5 ? pick(r, INTERESTS) : pick(r, INTERESTS)].map(x => x.id))),
         // 도시 근처로 살짝 흩기
         lat: c.lat + (r() - .5) * 6, lon: c.lon + (r() - .5) * 6
       });
@@ -124,5 +142,5 @@
     return out;
   }
 
-  g.MatchData = { COUNTRIES, LANG_NAME, NAMES, GREETING, REPLIES, MBTI, BLOODS, SHAPES, generate, countryOf: code => COUNTRIES.find(c => c.code === code) || COUNTRIES[0] };
+  g.MatchData = { COUNTRIES, LANG_NAME, NAMES, GREETING, REPLIES, INTERESTS, interestOf, GROUP_LINES, MBTI, BLOODS, SHAPES, generate, countryOf: code => COUNTRIES.find(c => c.code === code) || COUNTRIES[0] };
 })(typeof window !== 'undefined' ? window : globalThis);
