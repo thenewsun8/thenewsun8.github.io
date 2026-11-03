@@ -161,9 +161,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* ---------------- 전시 데이터 ---------------- */
 var SP = {
  lobby:{n:"1F",name:"로비",en:"LOBBY",c:"#7CFFB2",wall:0x141615,items:[
-  {t:"『노인의 시대』 기획전",m:"Special Exhibition · AI 영화 3부작",img:"oldman_poster.jpg",a:900/1333,
-   n:"원작 장편소설 『노인의 시대』에서 갈라져 나온 세 편의 영화 — 올드만 · 카니발 · 신곡.",
-   l:["1부 〈올드만 – 오프 더 레코드〉 2026","2부 〈카니발 – 침묵의 인터뷰〉 2027","3부 〈신곡 – 지옥의 라이브〉 2026"],go:"noin",goL:"기획전으로 들어가기"},
+  {t:"『노인의 시대』 기획전",m:"Special Exhibition · 다섯 편의 AI 영화",img:"oldman_poster.jpg",a:900/1333,
+   n:"원작 장편소설 『노인의 시대』에서 갈라져 나온 다섯 편의 기록. 따로 보면 단편, 이어 보면 70분 장편.",
+   l:["1부 〈올드만 – 기록되지 않은 기억〉 15분 · 완성","2부 〈인간사냥 – 침묵의 기록〉 18분 · 제작","3부 〈옥타곤 – 하이라이트〉 12분 · 2027","4부 〈안나 – 실험 영상〉 15분 · 2027","5부 〈신곡 – 지옥의 라이브〉 10분 · 완성"],go:"noin",goL:"기획전으로 들어가기"},
   {t:"엘리베이터",m:"2F – 6F",card:["ELEVATOR","2F 영화 · 3F AI 영화","4F 무대 · 5F 소설 · 6F 연구"],a:3/4,
    n:"층마다 색 하나. 위층으로 올라갈수록 영화의 원작과 방법에 가까워집니다.",l:[],elev:1},
   {t:"감독실",m:"Director · 안상욱 Ahn Sangwook",card:["DIRECTOR","안상욱","AHN SANG-WOOK"],a:3/4,
@@ -182,12 +182,20 @@ var SP = {
   {t:"붉은 안개 속 방역군",m:"〈올드만〉 스틸",img:"oldman_redfog.jpg",a:1600/680,l:[]},
   {t:"경기장",m:"〈올드만〉 스틸",img:"oldman_stadium.jpg",a:1600/680,l:[]},
   {t:"크로노스의 탄생",m:"〈올드만〉 스틸",img:"oldman_kronos.jpg",a:1600/680,l:[]},
-  {t:"카니발 – 침묵의 인터뷰",m:"2부 · 2027",card:["PART TWO · 2027","카니발","침묵의 인터뷰"],a:2/3,dark:1,
-   n:"다음 전시를 준비하고 있습니다.",l:[]},
-  {t:"신곡 – 지옥의 라이브",m:"3부 · 2026 · 10분 · INFERNO – LIVE",img:"singok_cage.jpg",a:1600/680,
+  {t:"인간사냥 – 침묵의 기록",m:"2부 · 18분 · 2026.12 제작 · ON THE RECORD",img:"hunt_man.jpg",a:1100/616,
+   n:"노인들은 새벽이 오면 늙는다. 아이는 새벽까지 숨을 참아야 한다. 계엄의 밤, 노인군이 젊은이들의 마을을 덮치고 아이 하나가 환풍구에 숨는다.",
+   l:["노인군의 작전 기록 카메라 — 기록하는 쪽의 시선","원작 프롤로그 「인간사냥」"]},
+  {t:"옥타곤 – 하이라이트",m:"3부 · 12분 · 2027.01 예정 · HIGHLIGHTS",img:"octagon_cage.jpg",a:1100/468,
+   n:"방송에는 하이라이트만 나갔다. 우승자가 어디로 갔는지는 편집됐다. 진 자는 여덟 개의 문으로, 이긴 자는 위로.",
+   l:["방송 하이라이트 편집본 형식","크로노스가 처음 나타나는 편"]},
+  {t:"안나 – 실험 영상",m:"4부 · 15분 · 2027.02 예정 · LAB TAPE",img:"anna_lab.jpg",a:1100/468,
+   n:"35년 동안 관찰당한 소녀가 마지막 테이프에서 카메라를 돌린다. 빼앗으면 독, 내어 주면 약.",
+   l:["실험실 관찰 테이프 TAPE 01, 02, 03…","교만의 마을, 닥터 K의 실험소"]},
+  {t:"신곡 – 지옥의 라이브",m:"5부 · 2026 · 10분 · INFERNO – LIVE",img:"poster_inferno.jpg",a:1000/1481,
    n:"심장에 자폭장치를 꿰맨 한 사람이 지하 일곱 층을 지나 위로 올라간다. 그 모든 길이 생중계된다.",
    l:["1인칭 생중계 형식","부천 · SBS A&T AI 영화 교육 수료작","영상은 영화제 상영 뒤에 공개합니다"]},
-  {t:"〈신곡〉 스틸",m:"3부",img:"singok_meat.jpg",a:1600/680,l:[]}
+  {t:"붉은 문 — 1옥",m:"〈신곡〉 스틸",img:"singok_cage.jpg",a:1600/680,l:[]},
+  {t:"폭식의 마을",m:"〈신곡〉 스틸",img:"singok_meat.jpg",a:1600/680,l:[]}
  ]},
  f2:{n:"2F",name:"영화",en:"FILMS",c:"#7FA8D6",wall:0x10141a,page:"f2.html",
   more:["스테이 2015 — 테헤란 국제단편영화제 선정","해피 버스데이 2013 — 휴스턴 동상 · 서강영화제 최우수상","위안 2019 — 현진건 「할머니의 죽음」 각색","나쁜 놈들 2011 — Stop! 성매매 영상제 공동대상"],
@@ -212,7 +220,7 @@ var SP = {
  f5:{n:"5F",name:"소설 · 그림책",en:"NOVELS & PICTURE BOOKS",c:"#B8A27A",wall:0x16140f,page:"f5.html",
   more:["수학여행 — 문학광장 신인상","내 아들의 세월 — 소설미학 신인상","3류 SF 소설 2023 — 한국과학창의재단 과학스토리텔러 선정","「인간 4부작」 『인간전』 → 『인간시절』 → 『노인의 시대』 → 「인간 탈출」"],
   items:[
-  {t:"노인의 시대",m:"웹소설 · 「인간 4부작」",card:["NOVEL","노인의 시대","THE AGE OF THE OLD"],a:2/3,l:["2024 제2회 대전콘텐츠코리아랩 웹소설 크리에이트 선정","영화 3부작 『노인의 시대』의 원작"],go:"noin",goL:"기획전 보기"},
+  {t:"노인의 시대",m:"웹소설 · 「인간 4부작」",card:["NOVEL","노인의 시대","THE AGE OF THE OLD"],a:2/3,l:["2024 제2회 대전콘텐츠코리아랩 웹소설 크리에이트 선정","다섯 편의 AI 영화 『노인의 시대』의 원작"],go:"noin",goL:"기획전 보기"},
   {t:"신혼록",m:"장편소설 · 마카롱 e-book 2023",img:"cover_sinhon.jpg",a:380/543,l:["2022 아르코 문학창작기금 선정","2023 e-book 출간","2025 오디오북 출간"],ext:["교보문고 e-book","https://ebook-product.kyobobook.co.kr/dig/epd/ebook/480D231155040"]},
   {t:"인간전",m:"장편소설 · 人間戰 · 마카롱 e-book 2023",img:"cover_ingan.jpg",a:380/547,l:["2022 교보문고 〈창작의 날씨〉 초대작가","2023 e-book 출간 (필명 태양전설)","731부대가 만든 좀비와 조선인 포로들의 탈출"],ext:["교보문고 e-book","https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000005458248"]},
   {t:"공룡소",m:"그림책 · 글과 그림 안상욱",img:"dino.jpg",a:1200/886,l:["2023 아르코 〈창작의 과정〉 선정","2024 전주출판학교 선정","코에 뿔이 없고 머리에 뿔이 난 코뿔소 아이 이야기"]}
@@ -480,7 +488,7 @@ function openElev(){
   if(k===spaceKey)b.setAttribute("aria-current","true");
   b.innerHTML="<b></b><span><span></span><small></small></span>";b.querySelector("b").textContent=k==="noin"?"SP":S.n;
   b.querySelector("span span").textContent=k==="noin"?"기획전 『노인의 시대』":S.name;
-  b.querySelector("small").textContent=k==="lobby"?"감독실 · 안내 데스크":k==="noin"?"올드만 · 카니발 · 신곡":S.items.map(function(x){return x.t}).slice(0,3).join(" · ");
+  b.querySelector("small").textContent=k==="lobby"?"감독실 · 안내 데스크":k==="noin"?"올드만 · 인간사냥 · 옥타곤 · 안나 · 신곡":S.items.map(function(x){return x.t}).slice(0,3).join(" · ");
   b.onclick=function(){if(k===spaceKey){$("elev").hidden=true;return;}show(k);};L.appendChild(b);});
  $("elev").hidden=false;
 }

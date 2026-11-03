@@ -4,15 +4,57 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>『노인의 시대』 기획전 — 뉴선스토리</title>
-<meta name="description" content="AI 영화 3부작 『노인의 시대』 — 올드만 · 카니발 · 신곡">
+<meta name="description" content="『노인의 시대』 — 다섯 편의 AI 영화, 한 편의 70분 장편. 올드만 · 인간사냥 · 옥타곤 · 안나 · 신곡. 예고편과 장편 설계도.">
 <meta property="og:title" content="『노인의 시대』 기획전 — 뉴선스토리">
-<meta property="og:description" content="AI 영화 3부작 『노인의 시대』 — 올드만 · 카니발 · 신곡">
-<meta property="og:image" content="img/oldman_poster.jpg">
+<meta property="og:description" content="『노인의 시대』 — 다섯 편의 AI 영화, 한 편의 70분 장편. 올드만 · 인간사냥 · 옥타곤 · 안나 · 신곡.">
+<meta property="og:image" content="https://thenewsun8.github.io/img/poster_inferno.jpg">
 <meta name="theme-color" content="#0B0B0C">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="img/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Nanum+Myeongjo:wght@700;800&display=swap">
+<style>
+.recs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.recs a{background:var(--panel);text-decoration:none;display:flex;flex-direction:column;gap:4px;padding:0 0 16px;min-width:0}
+.recs a:hover{background:#181917;color:var(--ink)}
+.recs img{width:100%;aspect-ratio:16/9;object-fit:cover;margin-bottom:10px}
+.recs .n{font-family:var(--f-mono);font-size:11px;letter-spacing:.18em;color:var(--green);padding:0 14px}
+.recs b{font-size:16px;font-weight:600;padding:0 14px;line-height:1.3}
+.recs small{color:var(--mute);font-size:13px;padding:0 14px}
+.recs em{font-style:normal;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;color:var(--mute);padding:6px 14px 0;margin-top:auto}
+.recs em.ok{color:var(--green)}.recs em.wip{color:#E27A3F}
+.two-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.two-box>div,.three-box>div{background:var(--panel);border:1px solid var(--line);padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+.two-box b,.three-box b{font-size:17px;font-weight:600}
+.two-box p,.three-box p{color:var(--soft);font-size:15px;line-height:1.65}
+.three-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.yts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.yts figure{margin:0;display:flex;flex-direction:column;gap:8px}
+.yt{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;border:1px solid var(--line)}
+.yt img{width:100%;height:100%;object-fit:cover;opacity:.8}
+.yt button{position:absolute;inset:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:0;background:none;border:0;padding:0;cursor:pointer;color:inherit;font-family:inherit}
+.yt button:focus-visible{outline:2px solid var(--green);outline-offset:-4px}
+main img{height:auto}
+.yt button::before{content:"▶";font-size:26px;display:grid;place-items:center;width:72px;height:72px;border-radius:50%;border:2px solid var(--green);color:var(--green);background:rgba(11,11,12,.6);padding-left:5px;transition:transform .2s,background .2s}
+.yt button:hover::before{transform:scale(1.08);background:var(--green);color:#0B0B0C}
+.yt iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.sins{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.sins li{border:1px solid var(--line);padding:8px 2px;text-align:center;font-size:13px;display:flex;flex-direction:column;gap:1px;min-width:0}
+.sins li b{font-family:var(--f-display);font-size:18px;color:#E27A3F}
+.sins li small{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.02em;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q{margin:6px 0 0;padding:10px 0 10px 18px;border-left:3px solid var(--accent,var(--green));font-family:var(--f-display);font-size:19px;line-height:1.5}
+.bar24{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:2px}
+.bar24 span{aspect-ratio:1;max-height:40px;display:grid;place-items:center;font-family:var(--f-mono);font-size:11px;background:var(--b);color:#EDEDE8}
+.bar24 span.key{outline:2px solid var(--gold);outline-offset:-2px}
+.legend{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;font-size:13px;color:var(--mute)}
+.legend div{display:flex;flex-direction:column}.legend b{color:var(--ink);font-weight:600}.legend i{font-style:normal;color:#E27A3F}
+.sched{width:100%;border-collapse:collapse;font-size:14.5px}
+.sched th{text-align:left;font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;color:var(--mute);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line)}
+.sched td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--soft)}
+.sched td:first-child{font-family:var(--f-mono);white-space:nowrap;color:var(--ink)}
+.sched td:last-child{color:var(--ink);white-space:nowrap}
+@media (max-width:760px){.bar24{grid-template-columns:repeat(12,minmax(0,1fr))}.legend{grid-template-columns:repeat(2,minmax(0,1fr))}.sins{grid-template-columns:repeat(4,minmax(0,1fr))}.sched td:last-child{white-space:normal}}
+</style>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,31 +62,124 @@
 <main>
 
 <section class="hero" style="border-top:0"><div class="w" style="padding-block:56px 40px">
-<div class="t fade"><div class="eyebrow" style="color:var(--green)">Special Exhibition · The Age of the Old</div><h1 style="font-size:clamp(44px,7vw,84px)">『노인의 시대』</h1>
-<p class="lead">옥시토신 호르몬제가 인구를 폭증시키고, 백신 전쟁 끝에 노인들이 지하로 내려간 세계. 원작 장편소설 『노인의 시대』에서 세 편의 영화가 갈라져 나옵니다.</p>
-<p class="en">The Age of the Old — a trilogy of AI films based on Ahn Sangwook's own novel.</p></div></div></section>
+<div class="t fade"><div class="eyebrow" style="color:var(--green)">Special Exhibition · The Age of the Old · Five Records, One Feature</div><h1 style="font-size:clamp(44px,7vw,84px)">『노인의 시대』</h1>
+<p class="lead">노인이 젊은이의 「하루」를 먹고 사는 세계. 원작 장편소설 『노인의 시대』에서 다섯 편의 AI 영화가 갈라져 나옵니다. 따로 보면 단편, 이어 보면 70분 장편.</p>
+<p class="en">The Age of the Old — five AI films in five forms of record, joining into one 70-minute feature. Based on Ahn Sangwook's own novel.</p>
+<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px"><a class="btn g" href="#trailers">▶ 예고편</a><a class="btn" href="#feature">장편 설계도</a><a class="btn" href="press.html">프레스킷</a></div></div>
+<figure style="flex:0 1 360px;min-width:0;margin:0"><img src="img/poster_inferno.jpg" alt="〈신곡 – 지옥의 라이브〉 포스터 — 일곱 죄의 띠" style="aspect-ratio:1000/1481;object-fit:cover" width="1000" height="1481"><figcaption class="cap">〈INFERNO – LIVE〉 · 5부 · 2026</figcaption></figure>
+</div></section>
 
 <section><div class="w">
-<div class="part fade" style="--accent:var(--green)"><div class="pic"><img src="img/oldman_poster.jpg" alt="〈올드만〉 포스터" style="aspect-ratio:2025/3000;object-fit:cover"></div>
-<div class="txt"><div class="eyebrow" style="color:var(--green)">1부 · Part One · 2026 · 15분</div><h2>올드만 – 오프 더 레코드</h2><div class="meta">OLDMAN – Off the Record · 한글 자막 제목 〈올드만 – 기록되지 않은 기억〉</div>
-<p style="font-size:17px">익명의 해커가 세상이 봐서는 안 될 기록을 흘린다. 영원을 약속한 팬데믹 "치료제" 이후 노인들은 껍데기로 버려졌다 — 그중 한 명이 돌아오기 전까지는.</p>
+<div style="display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between"><h2>한 세계, 다섯 편</h2><div class="eyebrow">Five Records · 15 + 18 + 12 + 15 + 10 = 70 min</div></div>
+<p class="lead">다섯 편은 한 세계의 시간순입니다. 폭동에서 크로노스가 태어나고, 마을이 습격당하고, 포로들이 투기장에 서고, 한 소녀가 실험실에 갇히고, 30년 뒤 한 남자가 지옥을 거슬러 오릅니다. 편마다 기록의 형식이 다릅니다 — 유출 영상, 작전 기록, 방송 하이라이트, 실험 테이프, 생중계.</p>
+<div class="recs">
+ <a href="#p1"><img src="img/oldman_kronos.jpg" alt="" loading="lazy"><span class="n">1 · OFF THE RECORD</span><b>올드만 – 기록되지 않은 기억</b><small>해커가 훔친 유출 영상 · 15분</small><em class="ok">2026.11 완성 · 영진위 제작지원</em></a>
+ <a href="#p2"><img src="img/hunt_man.jpg" alt="" loading="lazy"><span class="n">2 · ON THE RECORD</span><b>인간사냥 – 침묵의 기록</b><small>노인군의 작전 기록 · 18분</small><em class="wip">2026.12 완성 예정</em></a>
+ <a href="#p3"><img src="img/octagon_cage.jpg" alt="" loading="lazy"><span class="n">3 · HIGHLIGHTS</span><b>옥타곤 – 하이라이트</b><small>방송에 나간 편집본 · 12분</small><em>2027.01 완성 예정</em></a>
+ <a href="#p4"><img src="img/anna_lab.jpg" alt="" loading="lazy"><span class="n">4 · LAB TAPE</span><b>안나 – 실험 영상</b><small>실험실 관찰 테이프 · 15분</small><em>2027.02 완성 예정</em></a>
+ <a href="#p5"><img src="img/singok_tunnel.jpg" alt="" loading="lazy"><span class="n">5 · LIVE</span><b>신곡 – 지옥의 라이브</b><small>1인칭 강제 생중계 · 10분</small><em class="ok">2026 완성</em></a>
+</div>
+<div class="two-box"><div><b>편별로 따로 선다</b><p>각 편은 10~18분 단편으로 완결되어 영화제에 따로 출품하고, 시리즈로 편별 유통할 수 있습니다. 1부 올드만은 지금 영화제 출품 중입니다.</p></div><div><b>이어 보면 장편이 된다</b><p>다섯 편을 시간순으로 합치면 70분의 장편이 됩니다. 극장 개봉을 염두에 두고 하나의 24블록 구조로 설계했습니다.</p></div></div>
+</div></section>
+
+<section id="trailers"><div class="w">
+<div style="display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between"><h2>예고편</h2><div class="eyebrow">Trailers · 본편은 영화제 출품 중 · 비공개</div></div>
+<div class="yts">
+ <figure><div class="yt" data-yt="yUFTpeuXUy8" data-title="〈올드만〉 예고편"><img src="img/oldman_monitors.jpg" alt="" loading="lazy"><button type="button" aria-label="〈올드만〉 예고편 재생">▶</button></div><figcaption class="cap">1부 〈올드만 – 기록되지 않은 기억〉 예고편 · <a href="https://youtu.be/yUFTpeuXUy8" target="_blank" rel="noopener">YouTube ↗</a></figcaption></figure>
+ <figure><div class="yt" data-yt="tpye_1Pz-F8" data-title="〈신곡〉 예고편"><img src="img/singok_lights.jpg" alt="" loading="lazy"><button type="button" aria-label="〈신곡〉 예고편 재생">▶</button></div><figcaption class="cap">5부 〈신곡 – 지옥의 라이브〉 예고편 · <a href="https://youtu.be/tpye_1Pz-F8" target="_blank" rel="noopener">YouTube ↗</a></figcaption></figure>
+</div>
+</div></section>
+
+<section id="world"><div class="w">
+<div style="display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between"><h2>세계</h2><div class="eyebrow">The World</div></div>
+<div class="part fade" style="--accent:var(--green)"><div class="pic"><img src="img/anna_lab.jpg" alt="젊은이의 피를 보관하는 실험소 — 「하루」의 원료" loading="lazy"><figcaption class="cap" style="margin-top:8px">젊은이의 피를 보관하는 실험소 — 「하루」의 원료</figcaption></div>
+<div class="txt"><h3>영원을 약속한 치료제 이후, 노인은 젊은이의 「하루」를 먹고 산다.</h3>
+<p>젊은이의 피는 노인의 시간을 되돌립니다. 효과는 하루. 새벽이 오면 노인은 다시 늙습니다. 그래서 노인들은 매일 밤 젊은이를 사냥하고, 가두고, 기릅니다.</p>
+<p>노인군의 계엄 아래 젊은이들은 '포로'가 되어 지하로 보내집니다. 지하는 일곱 개의 마을로 나뉘어 있습니다 — 단테의 일곱 지옥을 본뜬 일곱 죄. 그 심장부에 크로노스가 있습니다. 영화 안에서 그 이름은 불리지 않습니다. 명판에 KRONOS라고 적혀 있을 뿐입니다.</p>
+<p>30년 뒤, 이 규칙은 하나도 바뀌지 않은 채 생중계됩니다. 사람은 바뀌어도 규칙은 바뀌지 않습니다.</p>
+<ol class="sins" aria-label="지하의 일곱 마을"><li><b>1</b>분노<small>IRA</small></li><li><b>2</b>색욕<small>LUXURIA</small></li><li><b>3</b>나태<small>ACEDIA</small></li><li><b>4</b>질투<small>INVIDIA</small></li><li><b>5</b>교만<small>SUPERBIA</small></li><li><b>6</b>폭식<small>GULA</small></li><li><b>7</b>탐욕<small>AVARITIA</small></li></ol>
+<p class="meta">옥타곤에서 진 자는 이 일곱 마을과 올드만의 처분장, 여덟 개의 문 중 하나로 끌려갑니다. 안나는 다섯 번째 마을, 교만의 실험소에 있습니다. 신곡의 남자는 일곱 마을을 거슬러 오릅니다.</p></div></div>
+</div></section>
+
+<section id="p1"><div class="w">
+<div class="part fade" style="--accent:var(--green)"><div class="pic"><img src="img/oldman_poster.jpg" alt="〈올드만〉 포스터" style="aspect-ratio:900/1333;object-fit:cover" loading="lazy"></div>
+<div class="txt"><div class="eyebrow" style="color:var(--green)">1부 · Part One · 15분 · 2026.11 완성 · 영화제 출품 중</div><h2>올드만 – 기록되지 않은 기억</h2><div class="meta">OLDMAN – Off the Record · 유출된 기록</div>
+<h3 style="font-size:22px">영원을 약속한 치료제 이후, 노인들은 껍데기로 버려졌다 — 한 명이 돌아오기 전까지는.</h3>
+<p>영원을 판 회사는 효과가 끝난 노인들을 처분장에 버렸다. 타지 않은 한 명이 돌아온다. 돌아온 노인은 젊은이의 피가 하루를 되돌린다는 것을 알고 있다. 폭동은 그 하루에서 시작된다.</p>
 <p class="en">An anonymous hacker leaks the footage the world was never meant to see: after a pandemic "cure" that promised eternity, the old were discarded as empty shells — until one of them came back.</p>
-<ul class="marks"><li>SF 페이크 다큐멘터리 · 파운드 푸티지</li><li>영화진흥위원회 2026 AI 기반 영화 제작지원작</li><li>원작 장편소설 『노인의 시대』 1장 「올드만의 기억」</li></ul>
-<a class="btn g" href="press.html">프레스킷 보기 →</a></div></div>
-<div class="grid"><figure><img src="img/oldman_monitors.jpg" alt="〈올드만〉 스틸 — 모니터 벽" loading="lazy"><figcaption class="cap">모니터 벽</figcaption></figure><figure><img src="img/oldman_redfog.jpg" alt="〈올드만〉 스틸 — 붉은 안개 속 방역군" loading="lazy"><figcaption class="cap">붉은 안개 속 방역군</figcaption></figure><figure><img src="img/oldman_stadium.jpg" alt="〈올드만〉 스틸 — 경기장" loading="lazy"><figcaption class="cap">경기장</figcaption></figure><figure><img src="img/oldman_disposal.jpg" alt="〈올드만〉 스틸 — 처분장" loading="lazy"><figcaption class="cap">처분장</figcaption></figure><figure><img src="img/oldman_smile.jpg" alt="〈올드만〉 스틸 — 노인의 미소" loading="lazy"><figcaption class="cap">노인의 미소</figcaption></figure><figure><img src="img/oldman_kronos.jpg" alt="〈올드만〉 스틸 — 크로노스의 탄생" loading="lazy"><figcaption class="cap">크로노스의 탄생</figcaption></figure></div>
+<ul class="marks"><li>형식 — SF 페이크 다큐멘터리 · 파운드 푸티지. 해커가 훔친 감시 카메라·방송·녹음을 이어 붙였다</li><li>역할 — 세계의 기원. 폭동과 크로노스의 탄생, 처분장. 다섯 편의 첫 문</li><li>영화진흥위원회 2026 AI 기반 영화 제작지원작</li><li>끝 카드 「&gt; SOMEONE IS COMING DOWN.」이 2부로 이어진다</li></ul>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><a class="btn g" href="#trailers">▶ 예고편</a><a class="btn" href="press.html">프레스킷 →</a></div></div></div>
+<div class="grid"><figure><img src="img/oldman_kronos.jpg" alt="〈올드만〉 스틸 — 돌아온 노인" loading="lazy"><figcaption class="cap">돌아온 노인</figcaption></figure><figure><img src="img/oldman_face.jpg" alt="〈올드만〉 스틸 — 모니터 앞의 노인" loading="lazy"><figcaption class="cap">모니터 앞의 노인</figcaption></figure><figure><img src="img/oldman_disposal.jpg" alt="〈올드만〉 스틸 — 처분장" loading="lazy"><figcaption class="cap">처분장</figcaption></figure><figure><img src="img/oldman_monitors.jpg" alt="〈올드만〉 스틸 — 모니터 벽" loading="lazy"><figcaption class="cap">모니터 벽</figcaption></figure><figure><img src="img/oldman_smile.jpg" alt="〈올드만〉 스틸 — 노인의 미소" loading="lazy"><figcaption class="cap">노인의 미소</figcaption></figure><figure><img src="img/oldman_young.jpg" alt="〈올드만〉 스틸 — 젊은이들" loading="lazy"><figcaption class="cap">젊은이들 — 「하루」의 값</figcaption></figure></div>
 </div></section>
 
-<section><div class="w">
-<div class="part fade" style="--accent:#C98F6E"><div class="txt"><div class="eyebrow" style="color:#C98F6E">2부 · Part Two · 2027</div><h2>카니발 – 침묵의 인터뷰</h2>
-<p class="lead" style="font-size:16px">다음 전시를 준비하고 있습니다.</p></div></div>
+<section id="p2"><div class="w">
+<div class="part fade" style="--accent:#C98F6E"><div class="pic"><img src="img/oldman_redfog.jpg" alt="〈인간사냥〉 — 마을 습격의 밤, 노인군" loading="lazy"><figcaption class="cap" style="margin-top:8px">마을 습격의 밤 — 노인군</figcaption></div>
+<div class="txt"><div class="eyebrow" style="color:#C98F6E">2부 · Part Two · 18분 · 2026.12 완성 예정</div><h2>인간사냥 – 침묵의 기록</h2><div class="meta">THE LAST YOUNG MEN HUNT – On the Record · 노인군의 작전 기록</div>
+<h3 style="font-size:22px">노인들은 새벽이 오면 늙는다. 아이는 새벽까지 숨을 참아야 한다.</h3>
+<p>계엄의 밤, 노인군이 젊은이들의 마을을 덮친다. 어른들은 잡혀 포로가 된다. 아이 하나가 환풍구에 숨는다. 숨으면 하루를 산다 — 새벽이 오면 노인들은 다시 늙어 사냥을 멈추기 때문이다.</p>
+<p>마을의 열여덟 살 산은 전 총사령관의 아들이다. 5년 전 아버지가 그랬듯 산도 자신이 폭탄이 된다. 「노인군의 계엄은 실패했다.」 아이는 환풍구 틈으로 그것을 본다. 끌려가는 어른 중 하나가 아이를 본다. 입술에 손가락을 댄다. 소리 내지 마. 아이는 새벽까지 숨을 참는다. 포로들은 옥타곤으로 간다.</p>
+<ul class="marks" style="--accent:#C98F6E"><li>형식 — 온 더 레코드. 노인군의 작전 기록 카메라와 포획 영상. 기록하는 쪽의 시선으로, 기록되는 쪽을 본다</li><li>원작 — 장편소설 『노인의 시대』 프롤로그 「인간사냥」</li><li>이 편의 규칙 — 몸의 폭력보다 말의 폭력이 세다. 설명 대사는 없다. 대사는 칼끝처럼 짧고, 카메라는 기록하는 자의 것이다</li><li>레퍼런스 — 〈에일리언 2〉의 뉴트 · 〈맨 인 더 다크〉</li></ul>
+<blockquote class="q">"다들 절대 눈을 마주치지 마. 감정적으로 반응해서도 안 되고."</blockquote></div></div>
+<div class="grid"><figure><img src="img/hunt_man.jpg" alt="〈인간사냥〉 콘셉트 — 안경을 쓴 남자" loading="lazy"></figure><figure><img src="img/oldman_machine.jpg" alt="〈인간사냥〉 콘셉트 — 기록 기계" loading="lazy"><figcaption class="cap">기록은 기계가 남기고, 이야기는 사람이 쓴다</figcaption></figure></div>
 </div></section>
 
-<section><div class="w">
-<div class="part fade" style="--accent:#D4A24C"><div class="pic"><img src="img/singok_cage.jpg" alt="〈신곡〉 스틸 — 13번 우리" style="aspect-ratio:2.35/1;object-fit:cover"></div>
-<div class="txt"><div class="eyebrow" style="color:#D4A24C">3부 · Part Three · 2026 · 10분</div><h2>신곡 – 지옥의 라이브</h2><div class="meta">INFERNO – LIVE</div>
-<p style="font-size:17px">심장에 자폭장치를 꿰맨 한 사람이 지하 일곱 층을 지나 위로 올라간다. 그 모든 길이 생중계된다.</p>
-<ul class="marks" style="--accent:#D4A24C"><li>1인칭 생중계 형식</li><li>부천 · SBS A&amp;T AI 영화 교육 수료작</li><li>영상은 영화제 상영 뒤에 공개합니다</li></ul></div></div>
-<div class="grid"><figure><img src="img/singok_canisters.jpg" alt="〈신곡〉 스틸" loading="lazy"></figure><figure><img src="img/singok_meat.jpg" alt="〈신곡〉 스틸" loading="lazy"></figure></div>
+<section id="p3"><div class="w">
+<div class="part fade" style="--accent:#E27A3F"><div class="pic"><img src="img/oldman_stadium.jpg" alt="〈옥타곤〉 — 전광판에 둘러싸인 케이지" loading="lazy"><figcaption class="cap" style="margin-top:8px">옥타곤 — 전광판에 둘러싸인 케이지</figcaption></div>
+<div class="txt"><div class="eyebrow" style="color:#E27A3F">3부 · Part Three · 12분 · 2027.01 완성 예정</div><h2>옥타곤 – 하이라이트</h2><div class="meta">OCTAGON – Highlights · 방송에 나간 편집본</div>
+<h3 style="font-size:22px">방송에는 하이라이트만 나갔다. 우승자가 어디로 갔는지는 편집됐다.</h3>
+<p>인간사냥에서 잡힌 포로들이 케이지에 선다. 죽고 죽이는 것이 계속된다. 진 자는 여덟 개의 문 — 일곱 마을과 처분장 — 중 하나로 끌려간다. 이긴 자는 상을 받으러 위로 올라간다. 상은 승자 자신이다. 가장 젊고 가장 강한 피. 크로노스가 그것을 마신다. 방송은 여기서 끝나고, 편집된 부분이 이 편의 마지막 컷이다.</p>
+<p>중계 사이로 저항군 리더 아틀라스의 항복 선언이 끼어든다. 젊은이들의 저항은 여기서 무릎을 꿇고, 30년의 규칙이 시작된다. 1편의 '돌아온 노인'이 지배자 크로노스로 처음 나타나는 편이다. 얼굴은 보이지 않는다. 명판 KRONOS와 잔, 그리고 승자를 내려다보는 자리만 보인다.</p>
+<ul class="marks" style="--accent:#E27A3F"><li>형식 — 방송 하이라이트 편집본. 중계 그래픽, 리플레이, 해설, 광고 사이의 컷. 편집된 것이 곧 이야기다</li><li>장편 안에서 — 24블록 중 11–15. 12블록이 장편의 중간점. 신곡 1옥의 「9명 남았다」는 이 규칙이 30년째 이어진 것이다</li><li>레퍼런스 — 〈러닝맨〉(1987) · 〈큐브〉</li></ul>
+<blockquote class="q">진 자는 문으로, 이긴 자는 위로. 위에는 잔이 하나 놓여 있다.</blockquote></div></div>
+<div class="grid"><figure><img src="img/octagon_cage.jpg" alt="〈옥타곤〉 — 철망 밖의 관중" loading="lazy"><figcaption class="cap">철망 밖의 관중</figcaption></figure><figure><img src="img/singok_cage.jpg" alt="〈옥타곤〉 — 여덟 개의 문" loading="lazy"><figcaption class="cap">여덟 개의 문</figcaption></figure></div>
+</div></section>
+
+<section id="p4"><div class="w">
+<div class="part fade" style="--accent:#7FA8D6"><div class="pic"><img src="img/oldman_monitors.jpg" alt="〈안나〉 — TAPE, 관찰 모니터" loading="lazy"><figcaption class="cap" style="margin-top:8px">TAPE — 관찰 모니터</figcaption></div>
+<div class="txt"><div class="eyebrow" style="color:#7FA8D6">4부 · Part Four · 15분 · 2027.02 완성 예정</div><h2>안나 – 실험 영상</h2><div class="meta">ANNA – Lab Tape · 실험실 관찰 테이프</div>
+<h3 style="font-size:22px">35년 동안 관찰당한 소녀가 마지막 테이프에서 카메라를 돌린다.</h3>
+<p>교만의 마을, 닥터 K의 실험소. 안나는 열여섯의 몸으로 늙지 않는다. 살아 있는 백신. 의사들은 35년 동안 그녀의 피를 뽑고, 기록하고, 늙어 간다. 안나는 거의 말하지 않는다. 눈빛이 대사다. 테이프가 쌓이며 하나의 규칙이 드러난다 — 빼앗으면 독, 내어 주면 약.</p>
+<p>마지막 테이프. 강제로 피를 뽑아 마신 노인들이 무너진다. 안나는 카메라를 돌린다. 그리고 얼굴 없는 손 하나에게 스스로 피를 내어 준다. 그 손은 물지 않는다. 받는다.</p>
+<ul class="marks" style="--accent:#7FA8D6"><li>형식 — 실험실 관찰 테이프. TAPE 01, 02, 03… 번호가 오를수록 의사들은 늙고, 안나는 그대로다</li><li>3부 ↔ 4부 — 승자의 피(빼앗긴 희생, 크로노스가 마신다) ↔ 안나의 피(내어 준 희생, 단테가 받는다)</li><li>장편 안에서 — 24블록 중 16–20. 18블록이 절망의 바닥. 안나의 피를 받은 손이 5부 신곡의 남자다</li><li>레퍼런스 — 〈엑스 마키나〉 · 〈캐리〉</li></ul></div></div>
+<div class="grid"><figure><img src="img/singok_canisters.jpg" alt="〈안나〉 — 실험소" loading="lazy"><figcaption class="cap">실험소</figcaption></figure><figure><img src="img/anna_lab.jpg" alt="〈안나〉 — TAPE, 피의 보관소" loading="lazy"><figcaption class="cap">TAPE — 피의 보관소</figcaption></figure></div>
+</div></section>
+
+<section id="p5"><div class="w">
+<div class="part fade" style="--accent:#D4A24C"><div class="pic"><img src="img/poster_inferno.jpg" alt="〈신곡 – 지옥의 라이브〉 포스터" style="aspect-ratio:1000/1481;object-fit:cover" loading="lazy"></div>
+<div class="txt"><div class="eyebrow" style="color:#D4A24C">5부 · Part Five · 10분 · 2026 완성</div><h2>신곡 – 지옥의 라이브</h2><div class="meta">INFERNO – LIVE · 1인칭 강제 생중계</div>
+<h3 style="font-size:22px">심장에 자폭장치를 꿰맨 남자가 지하 일곱 층을 거슬러 오른다. 모든 길이 생중계된다.</h3>
+<p>30년이 지났다. 옥타곤의 규칙은 그대로다. 1옥에서 「9명 남았다」는 방송이 나온다. 단테는 먹지 않는 남자다. 안나의 피를 받은 손이 그의 손이다.</p>
+<p>SIGNAL LOST. 그리고 마지막 카드 — 「&gt; SOMEONE IS COMING DOWN. AGAIN.」 올드만의 끝 카드가 30년 뒤에 한 번 더 뜬다. 장편은 여기서 끝나고, 세계는 다시 시작된다.</p>
+<ul class="marks" style="--accent:#D4A24C"><li>형식 — ● LIVE 강제 송출. 1인칭 바디캠. 말을 못 하는 남자 단테, 종군기자식 V.O.</li><li>언어 — 일곱 마을, 일곱 죄, 일곱 언어: 한국어 · 이탈리아어 · 독일어 · 일본어 · 중국어 · 러시아어 · 영어</li><li>2026 BIFAN · SBS A&amp;T AI 영화 교육 과정 작품</li><li>Down here, the old eat the young.</li></ul>
+<div style="display:flex;flex-wrap:wrap;gap:10px"><a class="btn g" href="#trailers">▶ 예고편</a><a class="btn" href="press.html">프레스킷 →</a></div></div></div>
+<div class="grid"><figure><img src="img/singok_cage.jpg" alt="〈신곡〉 스틸 — 붉은 문, 1옥" loading="lazy"><figcaption class="cap">붉은 문 — 1옥</figcaption></figure><figure><img src="img/singok_meat.jpg" alt="〈신곡〉 스틸 — 폭식의 마을" loading="lazy"><figcaption class="cap">폭식의 마을</figcaption></figure><figure><img src="img/singok_tunnel.jpg" alt="〈신곡〉 스틸 — 벽화의 통로" loading="lazy"><figcaption class="cap">벽화의 통로</figcaption></figure><figure><img src="img/singok_lights.jpg" alt="〈신곡〉 스틸 — 불빛의 마을" loading="lazy"><figcaption class="cap">불빛의 마을</figcaption></figure></div>
+</div></section>
+
+<section id="feature"><div class="w">
+<div style="display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between"><h2>하나의 장편 — 다섯 기록이 24블록으로 연결된다</h2><div class="eyebrow">The Feature · 70 min · 24 Blocks</div></div>
+<p class="lead">다섯 편은 각각 완결되지만, 이어 붙이면 한 편의 장편 구조를 이룹니다. 1막은 올드만(15), 2막 전반은 인간사냥(18)과 옥타곤(12), 2막 후반은 안나(15), 3막은 신곡(10) — 합쳐 70분. 편마다 안에서도 같은 24블록을 작게 반복합니다.</p>
+<div class="bar24" aria-hidden="true"><span style="--b:#8E2B22">1</span><span style="--b:#8E2B22">2</span><span style="--b:#8E2B22">3</span><span style="--b:#8E2B22">4</span><span style="--b:#8E2B22">5</span><span style="--b:#8E2B22">6</span><span style="--b:#5A4030">7</span><span style="--b:#5A4030">8</span><span style="--b:#5A4030">9</span><span style="--b:#5A4030">10</span><span style="--b:#9A4A1E">11</span><span class="key" style="--b:#9A4A1E">12</span><span style="--b:#9A4A1E">13</span><span style="--b:#9A4A1E">14</span><span style="--b:#9A4A1E">15</span><span style="--b:#2E3A4A">16</span><span style="--b:#2E3A4A">17</span><span class="key" style="--b:#2E3A4A">18</span><span style="--b:#2E3A4A">19</span><span style="--b:#2E3A4A">20</span><span style="--b:#B4541A">21</span><span style="--b:#B4541A">22</span><span style="--b:#B4541A">23</span><span style="--b:#B4541A">24</span></div>
+<div class="legend"><div><b>올드만</b><span>1–6 · 세계의 기원</span></div><div><b>인간사냥</b><span>7–10 · 숨바꼭질 · 18분</span></div><div><b>옥타곤</b><span>11–15 · <i>12 중간점</i></span></div><div><b>안나</b><span>16–20 · <i>18 절망</i></span></div><div><b>신곡</b><span>21–24 · 결말</span></div></div>
+<p class="meta">24블록 — 김태원 「욕망의 레시피」의 틀을 따른다.</p>
+<div class="two-box">
+ <div><b>이음새</b><ul class="marks"><li>올드만의 끝 카드 「SOMEONE IS COMING DOWN.」 → 인간사냥의 첫 밤</li><li>인간사냥의 포로들 → 옥타곤의 선수</li><li>옥타곤의 패자 → 여덟 개의 문 → 일곱 마을</li><li>옥타곤의 승자의 피 → 크로노스의 잔</li><li>안나의 피를 받은 얼굴 없는 손 → 신곡의 단테</li><li>옥타곤의 규칙 30년 → 신곡 1옥 「9명 남았다」</li><li>올드만의 끝 카드 → 신곡의 끝 카드 「… AGAIN.」 — 고리가 닫힌다</li></ul></div>
+ <div><b>장편의 핵심 — 두 개의 피</b><p>옥타곤의 승자는 가장 강한 피를 빼앗기고, 안나는 가장 귀한 피를 스스로 내어 줍니다. 같은 피가 한쪽에서는 독이 되고 한쪽에서는 약이 됩니다. 빼앗는 세계와 내어 주는 한 사람 — 다섯 편이 이 거울 하나를 향해 놓여 있습니다.</p><b style="margin-top:14px">다섯 가지 기록</b><p>오프 더 레코드 · 온 더 레코드 · 하이라이트 · 랩 테이프 · 라이브. 누가, 무엇을 위해 찍었는가가 편마다 다릅니다. 관객은 매번 다른 카메라의 자리에 앉습니다.</p></div>
+</div>
+</div></section>
+
+<section id="production"><div class="w">
+<div style="display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between"><h2>제작 — 이야기 · 각본 · 편집 · 연출은 사람이, 그림은 AI가</h2><div class="eyebrow">Production · 2026.11 – 2027</div></div>
+<p class="lead">『노인의 시대』는 이야기와 세계관이 먼저 있는 AI 영화입니다. 장편소설, 시나리오, 트리트먼트가 있고, 모든 편은 그림판과 애니매틱으로 먼저 설계한 뒤 생성에 들어갑니다. 장면이 아니라 세계를 만듭니다.</p>
+<table class="sched"><thead><tr><th>기간</th><th>작업</th><th>결과</th></tr></thead><tbody>
+<tr><td>2026.11</td><td>1부 올드만 마무리 — 색보정 → 음악·음향 → 자막 감수 → 엔딩 크레딧 → DCP · 2~4부 그림판·애니매틱 설계</td><td>올드만 완성 · DCP</td></tr>
+<tr><td>2026.12</td><td>5부 신곡 마무리 · 2부 인간사냥 생성·편집 (18분)</td><td>신곡 · 인간사냥 완성</td></tr>
+<tr><td>2027.01</td><td>3부 옥타곤 생성·편집</td><td>옥타곤 완성</td></tr>
+<tr><td>2027.02</td><td>4부 안나 생성·편집 → 다섯 편 조립, 장편 70분</td><td>안나 완성 · 장편 조립</td></tr>
+<tr><td>2027 상반기</td><td>장편 『노인의 시대』 완성 · 극장 개봉 준비</td><td>장편 완성</td></tr>
+<tr><td>2027.10</td><td>라이브 프리미어 (계획) — 다섯 편의 기록 70분 + 낭독·라이브 연주 25분 + 관객과의 대화</td><td>공연 1회</td></tr>
+</tbody></table>
+<div class="three-box"><div><b>이미지</b><p>편마다 인물 기준 얼굴을 한 장으로 고정하고, 다섯 편에 걸쳐 같은 얼굴을 유지한다. 올드만에서 잡은 색보정 기준을 다섯 편에 그대로 쓴다.</p></div><div><b>소리</b><p>음악은 감독이 직접 만들고, 믹싱과 사운드는 전문 엔지니어가 맡는다. 신곡은 일곱 언어의 더빙과 자막을 쓴다.</p></div><div><b>마무리</b><p>자막 감수, 엔딩 크레딧, DCP까지 편마다 영화제 출품 규격으로 끝낸다. 다섯 편의 크레딧에 「『노인의 시대』 5부작 중 n번째」를 표기한다.</p></div></div>
+<div class="part fade" style="--accent:var(--gold);margin-top:10px"><div class="pic"><img src="img/lockup.png" alt="(주)뉴선스토리" style="width:140px;background:none" loading="lazy"></div><div class="txt"><h3>안상욱 <span class="meta">AHN SANG-WOOK</span></h3><p>연출가. 소설가. 서강대학교 영상학 박사 · 경영학 석사. 주식회사 뉴선스토리 대표.</p><ul class="marks"><li>영화 — 올드만(2026 · 영진위 AI 기반 영화 제작지원) · 신곡(2026) · 불사자(2026 · 부라노 AI 영화제 공식 노미네이션) · 벌레(2025 · 테헤란 · 베이루트) · 구인(2022 · 부천 월드 프리미어 · 40여 국제영화제) · 스페인에서(2019 · 마드리드 최우수 외국어 단편)</li><li>책 — 『신혼록』 · 『인간전』 · 『공룡소』 · 『영화 각색, 10가지 스타일』</li><li>원작 — 장편소설 『노인의 시대』 The Age of the Old (2027 출간 예정)</li></ul><p class="meta">BASED ON THE STORY AND NOVEL 『THE AGE OF THE OLD』 BY AHN SANG-WOOK · 제작 주식회사 뉴선스토리 · asam8@naver.com</p><a class="btn" href="index.html">감독 홈페이지 →</a></div></div>
 </div></section>
 
 </main>
@@ -53,6 +188,9 @@
 <a class="btn g" href="press.html">프레스킷 →</a>
 <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start"><img src="img/lockup.png" alt="(주)뉴선스토리 NEW SUN STORY CO., LTD." width="140" height="156" loading="lazy"><div class="cap">© 2026 NewSunStory Co.,Ltd. · (주)뉴선스토리</div></div>
 </div></footer>
+<script>
+(function(){document.querySelectorAll(".yt[data-yt]").forEach(function(p){p.querySelector("button").addEventListener("click",function(){if(p.querySelector("iframe"))return;var f=document.createElement("iframe");f.src="https://www.youtube-nocookie.com/embed/"+p.getAttribute("data-yt")+"?rel=0&autoplay=1";f.title=p.getAttribute("data-title")||"예고편";f.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";f.allowFullscreen=true;p.appendChild(f);});});})();
+</script>
 <div id="swipehint" aria-hidden="true"></div>
 <script>
 (function(){
