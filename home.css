@@ -433,3 +433,12 @@ footer nav a{text-decoration:none}
   .flow{grid-template-columns:1fr}
   .flow li::after{content:none}
 }
+
+/* 저서 — 서점 링크 */
+.book .shop{font-size:13px}
+.book .shop a{color:var(--sun-2);text-decoration:none;font-weight:500}
+.book .shop a:hover{text-decoration:underline}
+.book>a{text-decoration:none;display:block}
+.book>a:hover .cover{transform:translateY(-4px) rotate(-.6deg)}
+.books{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.links{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
