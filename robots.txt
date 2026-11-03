@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://thenewsun8.github.io/sitemap.xml
