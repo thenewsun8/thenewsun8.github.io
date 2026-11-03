@@ -112,3 +112,30 @@
   /* 연도 */
   var y = document.getElementById("year"); if (y) y.textContent = new Date().getFullYear();
 })();
+
+/* 예고편 — 누르면 그때 YouTube 플레이어를 불러옵니다 (첫 화면은 가볍게) */
+(function () {
+  "use strict";
+  function load(p, autoplay) {
+    if (p.querySelector("iframe")) return;
+    var id = p.getAttribute("data-yt"), title = p.getAttribute("data-title") || "예고편";
+    var f = document.createElement("iframe");
+    f.src = "https://www.youtube-nocookie.com/embed/" + id + "?rel=0&modestbranding=1" + (autoplay ? "&autoplay=1" : "");
+    f.title = title; f.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"; f.allowFullscreen = true;
+    f.setAttribute("loading", "lazy");
+    p.appendChild(f);
+  }
+  var players = document.querySelectorAll(".player[data-yt]");
+  players.forEach(function (p) {
+    var btn = p.querySelector(".play");
+    if (btn) btn.addEventListener("click", function () { load(p, true); });
+  });
+  /* 작품 카드의 "예고편" 버튼 → 예고편 섹션으로 가서 바로 재생 */
+  document.querySelectorAll("[data-play]").forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var p = document.getElementById(a.getAttribute("data-play")); if (!p) return;
+      e.preventDefault(); p.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(function () { load(p, true); }, 500);
+    });
+  });
+})();
