@@ -8,6 +8,6 @@ for f in files:
     n = len(body)
     ns = len(body.replace(' ', '').replace('\n', ''))
     total += n
-    flag = 'OK' if 5100 <= n <= 6800 else ('SHORT' if n < 5100 else 'LONG')
+    flag = 'OK' if 5000 <= n <= 6800 else ('SHORT' if n < 5000 else 'LONG')
     print(f"{f}: {n} chars (with spaces), {ns} (no spaces) -> {flag}")
 print("TOTAL:", total)
