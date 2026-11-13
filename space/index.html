@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="우주 전투기"><meta name="theme-color" content="#02040a">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>우주 전투기 360</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+:root{--ink:#02040a;--panel:rgba(20,40,70,.78);--cream:#eaf6ff;--muted:#9cc4e8;--cyan:#4ad8ff;--gold:#ffc93a;--hot:#ff6a3a;
+ --display:"Jua","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;color-scheme:dark}
+html,body{margin:0;height:100%;background:var(--ink);overflow:hidden;font-family:var(--display);color:var(--cream);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+canvas{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;display:block;touch-action:none}
+#hud{z-index:2}
+.sheet{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:max(16px,env(safe-area-inset-top)) 18px max(16px,env(safe-area-inset-bottom));box-sizing:border-box;text-align:center;background:radial-gradient(ellipse at center,rgba(2,6,16,.35),rgba(2,6,16,.88));overflow-y:auto}
+[hidden]{display:none!important}
+.sheet h2{margin:0;font-weight:400;font-size:clamp(30px,8vw,48px);color:var(--cyan);text-shadow:0 0 18px rgba(74,216,255,.6),0 3px 0 rgba(0,0,0,.5);letter-spacing:.02em}
+.sheet h2 small{display:block;font-size:.42em;color:var(--muted);text-shadow:none;margin-top:4px}
+.sheet p{margin:0;font-size:16px;color:var(--muted);line-height:1.55;max-width:34ch}
+.how{background:var(--panel);border:1px solid rgba(74,216,255,.35);border-radius:16px;padding:12px 16px;max-width:34ch;text-align:left;font-size:15px;line-height:1.6;color:var(--cream)}
+.how b{font-weight:400;color:var(--gold)}
+.go{font-family:var(--display);font-size:23px;border:0;border-radius:16px;padding:13px 34px;background:linear-gradient(#2fb8ff,#1a74d8);color:#fff;cursor:pointer;box-shadow:0 0 22px rgba(47,184,255,.45),0 5px 0 rgba(0,0,0,.4)}
+.go:active{transform:translateY(2px)}
+.go.gold{background:linear-gradient(#ffd65a,#f0a020);color:#1a1000;box-shadow:0 0 18px rgba(255,200,60,.4),0 5px 0 rgba(0,0,0,.4)}
+.opt{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tog{font-family:var(--display);font-size:15px;border:1px solid rgba(74,216,255,.5);border-radius:999px;padding:7px 14px;background:rgba(10,30,60,.7);color:var(--muted);cursor:pointer}
+.tog.on{background:rgba(74,216,255,.25);color:#fff;border-color:var(--cyan)}
+.stars{font-size:46px;color:var(--gold);letter-spacing:.08em;line-height:1;text-shadow:0 0 14px rgba(255,200,60,.6)}
+.big{font-size:44px;color:#fff;line-height:1}
+.stat{background:var(--panel);border-radius:14px;padding:10px 16px;font-size:16px;line-height:1.6}
+.stat b{font-weight:400;color:var(--gold)}
+.back{position:fixed;left:max(10px,env(safe-area-inset-left));top:max(10px,env(safe-area-inset-top));z-index:6;font-size:14px;color:var(--muted);text-decoration:none;background:rgba(10,30,60,.6);padding:5px 11px;border-radius:999px}
+#load{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted);background:#02040a}
+</style>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js","three/addons/":"./lib/addons/"}}</script>
+</head><body>
+<canvas id="gl" aria-label="우주 전투 화면. 끌어서 둘러보고, 발사 버튼으로 쏘아요."></canvas>
+<canvas id="hud"></canvas>
+<div id="load">우주로 가는 중…</div>
+
+<div class="sheet" id="title" hidden>
+ <a class="back" href="../games/">← 게임방</a>
+ <h2>우주 전투기 360<small>사방에서 오는 외계 우주선을 막아라!</small></h2>
+ <div class="how">
+  <b>둘러보기</b> 화면을 손가락으로 끌면 360도 빙글빙글. 폰을 들고 몸을 돌려도 돼요.<br>
+  <b>쏘기</b> 조준점에 적이 들어오면 저절로 발사! 발사 버튼을 꾹 눌러도 돼요.<br>
+  <b>미사일</b> 빨간 LOCK이 뜨면 미사일 버튼!<br>
+  <b>레이더</b> 아래 동그라미에 적이 어디 있는지 나와요.
+ </div>
+ <div class="opt"><button type="button" class="tog" id="gyroBtn">폰 돌려서 보기: 끔</button><button type="button" class="tog on" id="autoBtn">자동 사격: 켬</button><button type="button" class="tog on" id="sndBtn">소리: 켬</button></div>
+ <p>가로로 눕히면 더 넓게 보여요.</p>
+ <button type="button" class="go" id="goBtn">출격!</button>
+ <button type="button" class="go gold" id="contBtn" hidden>이어하기</button>
+</div>
+
+<div class="sheet" id="dead" hidden>
+ <h2>격추당했다!<small>괜찮아요, 정비하고 다시 출격!</small></h2>
+ <div class="stat" id="dText"></div>
+ <button type="button" class="go" id="retryBtn">이 웨이브 다시!</button>
+ <button type="button" class="go gold" id="menuBtn1">처음 화면</button>
+</div>
+
+<div class="sheet" id="win" hidden>
+ <h2>은하계를 지켰다!<small>외계 모선을 모두 물리쳤어요</small></h2>
+ <div class="stars" id="wStars"></div>
+ <div class="big" id="wScore"></div>
+ <div class="stat" id="wText"></div>
+ <button type="button" class="go" id="againBtn">다시 출격</button>
+ <button type="button" class="go gold" id="menuBtn2">처음 화면</button>
+</div>
+
+<script type="module" src="./game.js"></script>
+</body></html>
